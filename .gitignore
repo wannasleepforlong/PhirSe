@@ -70,3 +70,6 @@ public/vad/
 
 # local caches (e2e fake-patient audio)
 .cache/
+
+.vercel
+.env*

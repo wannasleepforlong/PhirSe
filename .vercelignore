@@ -1,0 +1,12 @@
+# Never upload local secrets, caches or build output.
+.env
+.env.*
+!.env.example
+.cache
+.next
+.next-verify
+node_modules
+public/vad
+.claude
+# Python clarity worker runs outside Vercel.
+verifier

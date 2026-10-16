@@ -82,6 +82,19 @@ supabase/                  Database migrations
 research/                  Research pack
 ```
 
+## Deployment
+
+Live: https://phirse-flax.vercel.app (Vercel, Mumbai region `bom1`, same region as Supabase).
+
+```bash
+npx vercel login
+npx vercel link --project phirse
+node scripts/vercel-env.mjs      # copies the web app's keys from .env to Vercel production
+npx vercel deploy --prod
+```
+
+The clarity worker (`verifier/`) is not part of the Vercel deployment. Run it anywhere with access to the same Supabase project.
+
 ## Safety and privacy
 
 - PhirSe is not an emergency service. For new stroke signs, call 112 or 108 at once.
