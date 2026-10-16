@@ -331,10 +331,19 @@ export function useSessionRunner(token: string) {
     stopAudio();
     void sendEvent("stop");
   }, [sendEvent]);
+  // Help must work at any moment, even before the session exists: show the safety screen first,
+  // then record it on the server when there is a session to record it on.
   const help = useCallback(() => {
     stopAudio();
-    void sendEvent("help");
-  }, [sendEvent]);
+    clearTimers();
+    listenMode.current = "off";
+    setStatus("safety");
+    void vad.current?.pause();
+    if (sessionId.current) {
+      // Record the alert; stay on the safety screen whatever the network does.
+      void post(`/api/p/session/${sessionId.current}/event`, JSON.stringify({ type: "help" })).catch(() => undefined);
+    }
+  }, [post]);
 
   useEffect(
     () => () => {
