@@ -213,6 +213,13 @@ export async function startSession(token: string | null, kind: "practice" | "jud
   const settings = settingsFrom(patient.settings);
   const db = adminDb();
 
+  // A session left open (tab closed, phone locked) is abandoned once a new one starts.
+  await db
+    .from("session")
+    .update({ ended_at: new Date().toISOString(), end_reason: "abandoned" })
+    .eq("patient_id", patient.id)
+    .is("ended_at", null);
+
   const { count } = await db
     .from("session")
     .select("id", { count: "exact", head: true })

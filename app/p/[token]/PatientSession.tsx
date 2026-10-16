@@ -159,7 +159,7 @@ export default function PatientSession({ token, mode }: { token: string; mode: U
             <button onClick={() => r.answer(true)} className={`${bigBtn} bg-khadi text-neel`}>{t("yes")}</button>
             <button onClick={() => r.answer(false)} className={`${bigBtn} border-2 border-khadi/70`}>{t("no")}</button>
           </>
-        ) : r.status === "paused" ? (
+        ) : r.status === "paused" || a?.phase === "PAUSED" ? (
           <>
             <button onClick={r.resume} className={`${bigBtn} bg-haldi text-neel-deep`}>{t("resume")}</button>
             <button onClick={r.stop} className={`${bigBtn} border-2 border-khadi/50 text-2xl`}>{t("stopToday")}</button>
