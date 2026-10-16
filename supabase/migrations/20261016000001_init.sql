@@ -251,3 +251,9 @@ create policy alert_owner_ack on alert
 insert into storage.buckets (id, name, public)
 values ('audio', 'audio', false), ('images', 'images', false), ('consent', 'consent', false)
 on conflict (id) do nothing;
+
+-- Helper functions are for RLS only; do not expose them as API endpoints.
+revoke execute on function current_slp_id() from public, anon;
+revoke execute on function owns_patient(uuid) from public, anon;
+grant execute on function current_slp_id() to authenticated;
+grant execute on function owns_patient(uuid) to authenticated;
