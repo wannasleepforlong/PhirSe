@@ -112,3 +112,37 @@ export async function resolveClips(refs: ClipRef[], ctx: ClipContext, concurrenc
 
 /** Session start prefetch: same as resolveClips, kept as a named entry point. */
 export const prefetchClips = resolveClips;
+
+/**
+ * One free-text clip through the same cache (SLP voice preview, spike page).
+ * Previewing a cue renders exactly the file a session will later play, so nothing is paid for twice.
+ */
+export async function cachedTextClip(
+  text: string,
+  voice: Voice,
+  patientId: string | null,
+): Promise<{ url: string; key: string; cached: boolean }> {
+  const db = adminDb();
+  const path = clipPath(text, voice);
+  const { data: existing, error } = await db.from("audio_asset").select("id").eq("storage_path", path).limit(1);
+  if (error) throw new Error(`clip lookup failed: ${error.message}`);
+  const cached = (existing ?? []).length > 0;
+  if (!cached) {
+    const tts = await synthesize({ text, speaker: voice.speaker, pace: voice.pace, codec: "mp3" });
+    const up = await db.storage.from(AUDIO_BUCKET).upload(path, tts.audio, { contentType: tts.contentType, upsert: true });
+    if (up.error) throw new Error(`clip upload failed: ${up.error.message}`);
+    await db.from("audio_asset").insert({
+      patient_id: patientId,
+      kind: "system",
+      system_key: "preview",
+      text,
+      speaker: voice.speaker,
+      pace: voice.pace,
+      storage_path: path,
+      source: "tts",
+    });
+  }
+  const { data, error: signError } = await db.storage.from(AUDIO_BUCKET).createSignedUrl(path, SIGNED_URL_SECONDS);
+  if (signError || !data) throw new Error(`signed url failed: ${signError?.message}`);
+  return { url: data.signedUrl, key: path, cached };
+}

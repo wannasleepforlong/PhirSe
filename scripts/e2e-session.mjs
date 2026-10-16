@@ -9,8 +9,20 @@ const key = process.env.SARVAM_API_KEY;
 const H = { "x-patient-token": token };
 
 const ttsCache = new Map();
+// Fake-patient audio is cached on disk so reruns never spend TTS again.
+const fs = await import("node:fs");
+const { createHash: hashOf } = await import("node:crypto");
+const DISK_CACHE = new URL("../.cache/e2e-tts/", import.meta.url);
+fs.mkdirSync(DISK_CACHE, { recursive: true });
+
 async function say(text) {
   if (ttsCache.has(text)) return ttsCache.get(text);
+  const file = new URL(hashOf("sha256").update(text).digest("hex").slice(0, 24) + ".wav", DISK_CACHE);
+  if (fs.existsSync(file)) {
+    const buf = fs.readFileSync(file);
+    ttsCache.set(text, buf);
+    return buf;
+  }
   let r;
   for (let i = 0; i < 6; i++) {
   r = await fetch("https://api.sarvam.ai/text-to-speech", {
@@ -24,6 +36,7 @@ async function say(text) {
   const j = await r.json();
   if (!r.ok) throw new Error(JSON.stringify(j));
   const buf = Buffer.from(j.audios[0], "base64");
+  fs.writeFileSync(file, buf);
   ttsCache.set(text, buf);
   return buf;
 }

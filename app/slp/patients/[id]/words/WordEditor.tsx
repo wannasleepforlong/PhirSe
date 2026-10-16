@@ -26,32 +26,19 @@ const SET_LABEL: Record<WordInput["set"], string> = {
 
 type CueField = "prompt_text" | "semantic_cue_text" | "phonemic_cue_text" | "model_text";
 
-async function preview(text: string, speaker?: string, pace?: number) {
+// Plays through the shared clip cache: the first preview renders the clip, later ones and the session reuse it.
+async function preview(text: string, patientId: string) {
   const res = await fetch("/api/slp/tts", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ text, speaker, pace }),
+    body: JSON.stringify({ text, patientId }),
   });
-  if (!res.ok) throw new Error((await res.json()).error ?? "preview failed");
-  const url = URL.createObjectURL(await res.blob());
-  const audio = new Audio(url);
-  audio.onended = () => URL.revokeObjectURL(url);
-  await audio.play();
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error ?? "preview failed");
+  await new Audio(data.url).play();
 }
 
-function WordForm({
-  patientId,
-  word,
-  speaker,
-  pace,
-  onDone,
-}: {
-  patientId: string;
-  word?: WordRow;
-  speaker?: string;
-  pace?: number;
-  onDone?: () => void;
-}) {
+function WordForm({ patientId, word, onDone }: { patientId: string; word?: WordRow; onDone?: () => void }) {
   const [f, setF] = useState({
     target_deva: word?.target_deva ?? "",
     set: word?.set ?? ("treated" as WordInput["set"]),
@@ -114,7 +101,7 @@ function WordForm({
           <button
             type="button"
             disabled={!text}
-            onClick={() => preview(text, speaker, pace).catch((e: Error) => setError(e.message))}
+            onClick={() => preview(text, patientId).catch((e: Error) => setError(e.message))}
             className="shrink-0 rounded-lg bg-calm/10 px-3 text-calm disabled:opacity-40"
             title="Play with this patient's voice settings"
           >
@@ -188,17 +175,7 @@ function WordForm({
   );
 }
 
-export default function WordEditor({
-  patientId,
-  words,
-  speaker,
-  pace,
-}: {
-  patientId: string;
-  words: WordRow[];
-  speaker?: string;
-  pace?: number;
-}) {
+export default function WordEditor({ patientId, words }: { patientId: string; words: WordRow[] }) {
   const [open, setOpen] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const groups: WordInput["set"][] = ["treated", "untreated", "reserve", "warmup"];
@@ -215,7 +192,7 @@ export default function WordEditor({
           {adding ? "Close" : "+ Add word"}
         </button>
       </div>
-      {adding && <WordForm patientId={patientId} speaker={speaker} pace={pace} onDone={() => setAdding(false)} />}
+      {adding && <WordForm patientId={patientId} onDone={() => setAdding(false)} />}
       {groups.map((g) => {
         const list = words.filter((w) => w.set === g);
         if (list.length === 0) return null;
@@ -236,7 +213,7 @@ export default function WordEditor({
                   </button>
                   {open === w.id && (
                     <div className="mt-2">
-                      <WordForm patientId={patientId} word={w} speaker={speaker} pace={pace} onDone={() => setOpen(null)} />
+                      <WordForm patientId={patientId} word={w} onDone={() => setOpen(null)} />
                     </div>
                   )}
                 </li>

@@ -37,7 +37,7 @@ describe("session opening", () => {
   it("greets with AI disclosure, then asks the safety question, then warm-up", () => {
     const p = plan();
     let t = run(p, [{ type: "start" }]);
-    expect(t.action).toMatchObject({ kind: "ask_yes_no", clips: [{ key: "greeting" }] });
+    expect(t.action).toMatchObject({ kind: "ask_yes_no", clips: [{ key: "hello" }, { key: "greeting" }] });
     t = run(p, [{ type: "start" }, { type: "yes" }]);
     expect(t.state.phase).toBe("SAFETY_CHECK");
     t = run(p, [{ type: "start" }, { type: "yes" }, { type: "no" }]);

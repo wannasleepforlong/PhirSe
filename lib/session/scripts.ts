@@ -1,4 +1,6 @@
 // Default Hindi wording for system clips and item cues.
+// Only "hello" contains the patient's name; every other line is identical for all patients,
+// so its audio is rendered once and shared from the Supabase clip cache.
 // Draft wording: the supervising SLP must approve it before any patient hears it.
 
 import type { CueStep, SystemClip } from "@/lib/engine/stateMachine";
@@ -20,8 +22,10 @@ export const PRAISE: string[] = [
 export function systemClipText(key: SystemClip, who: PatientNaming, variant = 0): string {
   const name = `${who.displayName} ${who.honorific}`.trim();
   switch (key) {
+    case "hello":
+      return `नमस्ते ${name}!`;
     case "greeting":
-      return `नमस्ते ${name}! मैं फिर-से की AI साथी हूँ, कोई इंसान नहीं। आपकी थेरेपिस्ट ने आज की प्रैक्टिस भेजी है। शुरू करें?`;
+      return "मैं फिर-से की AI साथी हूँ, कोई इंसान नहीं। आपकी थेरेपिस्ट ने आज की प्रैक्टिस भेजी है। शुरू करें?";
     case "safety_check":
       return "आज कोई नई परेशानी है? जैसे चक्कर, कमज़ोरी, या बोलने में नई दिक्कत?";
     case "warmup":
@@ -41,7 +45,7 @@ export function systemClipText(key: SystemClip, who: PatientNaming, variant = 0)
     case "paused":
       return "ठीक है, रुकते हैं। जब तैयार हों, बटन दबाइए।";
     case "close":
-      return `आज के लिए बस इतना। बहुत अच्छा किया, ${name}। कल फिर मिलते हैं।`;
+      return "आज के लिए बस इतना। बहुत अच्छा किया। कल फिर मिलते हैं।";
     case "goodbye":
       return "कोई बात नहीं। फिर कभी करते हैं। अपना ध्यान रखिए।";
     case "safety_exit":

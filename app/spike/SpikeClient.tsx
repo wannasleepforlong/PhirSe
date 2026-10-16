@@ -159,11 +159,10 @@ export default function SpikeClient() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ key: accessKey, text: ttsText, pace: ttsPace, speaker: ttsSpeaker }),
       });
-      if (!res.ok) throw new Error((await res.json()).error ?? res.statusText);
-      setTtsMs(Number(res.headers.get("x-tts-ms")));
-      const url = URL.createObjectURL(await res.blob());
-      const audio = new Audio(url);
-      audio.onended = () => URL.revokeObjectURL(url);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? res.statusText);
+      setTtsMs(data.cached ? 0 : null);
+      const audio = new Audio(data.url);
       await audio.play();
     } catch (e) {
       setError(`TTS error: ${(e as Error).message}`);
@@ -300,7 +299,7 @@ export default function SpikeClient() {
           <button onClick={playTts} className="rounded-full bg-calm px-4 py-2 text-white">
             Play
           </button>
-          {ttsMs !== null && <span className="text-muted">{ttsMs} ms</span>}
+          {ttsMs === 0 && <span className="text-muted">from cache, no TTS used</span>}
         </div>
       </section>
 

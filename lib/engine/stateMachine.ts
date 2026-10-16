@@ -7,7 +7,8 @@ export type CueStep = "prompt" | "semantic" | "phonemic" | "model";
 export type CueMode = "increasing" | "decreasing";
 
 export type SystemClip =
-  | "greeting"        // AI disclosure + "shall we start?"
+  | "hello"           // "Namaste <name>!" — the only per-patient clip
+  | "greeting"        // AI disclosure + "shall we start?" (shared by all patients)
   | "safety_check"    // "any new problem today?"
   | "warmup"
   | "probe_intro"
@@ -416,7 +417,10 @@ export function transition(plan: SessionPlan, state: SessionState, event: Sessio
 
     case "GREETING": {
       if (event.type === "start") {
-        return emit(plan, state, { kind: "ask_yes_no", clips: [{ type: "system", key: "greeting" }] });
+        return emit(plan, state, {
+          kind: "ask_yes_no",
+          clips: [{ type: "system", key: "hello" }, { type: "system", key: "greeting" }],
+        });
       }
       if (event.type === "yes") {
         return emit(plan, { ...state, phase: "SAFETY_CHECK" }, {

@@ -11,14 +11,13 @@ export default async function WordsPage({ params }: { params: Promise<{ id: stri
   const me = await currentSlp();
   if (!me) redirect("/slp/login");
   const db = await slpDb();
-  const { data: patient } = await db.from("patient").select("id, display_name, settings").eq("id", id).maybeSingle();
+  const { data: patient } = await db.from("patient").select("id, display_name").eq("id", id).maybeSingle();
   if (!patient) notFound();
   const { data: words } = await db
     .from("word_item")
     .select("id, target_deva, set, accepted_forms, prompt_text, semantic_cue_text, phonemic_cue_text, model_text, approved_at, leitner_box")
     .eq("patient_id", id)
     .order("created_at");
-  const settings = patient.settings as { tts_speaker?: string; tts_pace?: number };
   return (
     <Shell
       name={me.name}
@@ -34,7 +33,7 @@ export default async function WordsPage({ params }: { params: Promise<{ id: stri
           whether gains carry over. Leave a cue empty to use the default wording.
         </p>
       </div>
-      <WordEditor patientId={id} words={(words ?? []) as WordRow[]} speaker={settings.tts_speaker} pace={settings.tts_pace} />
+      <WordEditor patientId={id} words={(words ?? []) as WordRow[]} />
     </Shell>
   );
 }
