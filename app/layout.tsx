@@ -1,26 +1,30 @@
 import type { Metadata, Viewport } from "next";
-import { Mukta, Inter } from "next/font/google";
+import { Anek_Devanagari, Tiro_Devanagari_Hindi } from "next/font/google";
 import "./globals.css";
 
-const mukta = Mukta({
-  variable: "--font-mukta",
+// Anek Devanagari for all interface text (variable width + weight); Tiro for display headlines.
+const anek = Anek_Devanagari({
+  variable: "--font-anek",
   subsets: ["devanagari", "latin"],
-  weight: ["400", "500", "700"],
+  axes: ["wdth"],
+  display: "swap",
 });
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
+const tiro = Tiro_Devanagari_Hindi({
+  variable: "--font-tiro",
+  subsets: ["devanagari", "latin"],
+  weight: "400",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "PhirSe — फिर से",
   description:
-    "Voice-first Hindi word-finding practice for stroke survivors with aphasia, prescribed by a speech-language pathologist.",
+    "Daily Hindi word-finding practice for people with aphasia after stroke, prescribed and supervised by their speech therapist.",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f6efe6",
+  themeColor: "#1e2a63",
   width: "device-width",
   initialScale: 1,
 };
@@ -32,9 +36,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="hi">
-      <body className={`${mukta.variable} ${inter.variable} antialiased`}>
-        {children}
-      </body>
+      <body className={`${anek.variable} ${tiro.variable} antialiased`}>{children}</body>
     </html>
   );
 }

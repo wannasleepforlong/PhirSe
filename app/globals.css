@@ -1,30 +1,95 @@
 @import "tailwindcss";
 
+/*
+  PhirSe palette — Indian natural dyes.
+  neel (indigo) carries trust and calm; haldi (turmeric) is the one warm, healing signal;
+  khadi is the cool off-white cloth; mehendi marks a word found; sindoor is reserved for safety.
+*/
 :root {
-  --background: #f6efe6;
-  --surface: #fffaf3;
-  --foreground: #2b211a;
-  --muted: #6f6158;
-  --accent: #c2562b;
-  --accent-soft: #f3d9c8;
-  --calm: #2f6f6a;
-  --alert: #b3261e;
+  --neel: #1e2a63;
+  --neel-deep: #151d48;
+  --neel-soft: #e3e6f2;
+  --haldi: #e9a81b;
+  --haldi-soft: #fbefd2;
+  --khadi: #f6f7f4;
+  --mehendi: #3e6b3a;
+  --mehendi-soft: #e2ebdf;
+  --sindoor: #c4122f;
+  --ink: #171b33;
+  --ink-muted: #565c78;
+  --line: #d5d9e6;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-surface: var(--surface);
-  --color-foreground: var(--foreground);
-  --color-muted: var(--muted);
-  --color-accent: var(--accent);
-  --color-accent-soft: var(--accent-soft);
-  --color-calm: var(--calm);
-  --color-alert: var(--alert);
-  --font-sans: var(--font-mukta), var(--font-inter), system-ui, sans-serif;
+  --color-neel: var(--neel);
+  --color-neel-deep: var(--neel-deep);
+  --color-neel-soft: var(--neel-soft);
+  --color-haldi: var(--haldi);
+  --color-haldi-soft: var(--haldi-soft);
+  --color-khadi: var(--khadi);
+  --color-mehendi: var(--mehendi);
+  --color-mehendi-soft: var(--mehendi-soft);
+  --color-sindoor: var(--sindoor);
+  --color-ink: var(--ink);
+  --color-line: var(--line);
+
+  /* Older component names mapped onto the palette (spike page, shared bits). */
+  --color-background: var(--khadi);
+  --color-surface: #ffffff;
+  --color-foreground: var(--ink);
+  --color-muted: var(--ink-muted);
+  --color-accent: var(--neel);
+  --color-accent-soft: var(--neel-soft);
+  --color-calm: var(--mehendi);
+  --color-alert: var(--sindoor);
+
+  --font-sans: var(--font-anek), system-ui, sans-serif;
+  --font-display: var(--font-tiro), var(--font-anek), serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--khadi);
+  color: var(--ink);
   font-family: var(--font-sans);
+  font-feature-settings: "kern";
+}
+
+/* Wide cut of Anek for figures and the patient's big buttons. */
+.wide {
+  font-stretch: 118%;
+}
+.narrow {
+  font-stretch: 88%;
+}
+
+:focus-visible {
+  outline: 3px solid var(--haldi);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* The listening orb: one slow breath, the only ambient motion in the product. */
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+@keyframes halo {
+  0% { transform: scale(0.9); opacity: 0.55; }
+  100% { transform: scale(1.45); opacity: 0; }
+}
+.orb-breathe {
+  animation: breathe 4.5s ease-in-out infinite;
+}
+.orb-halo {
+  animation: halo 2.6s ease-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .orb-breathe,
+  .orb-halo {
+    animation: none;
+  }
 }
