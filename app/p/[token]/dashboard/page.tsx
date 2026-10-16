@@ -6,6 +6,7 @@ import { F, pick } from "@/lib/i18n/dict";
 import { uiMode } from "@/lib/i18n/server";
 import { helpBySession, median, probeSeries, weeklyAdherence, wordStatus, type WordStatus } from "@/lib/engine/metrics";
 import { loadOverview } from "@/lib/profile/dashboard";
+import { claritySeries, recordingTips } from "@/lib/engine/clarity";
 import { profileFromToken, ProfileError } from "@/lib/profile/service";
 import { DeleteZone, PracticeSwitch } from "./Controls";
 
@@ -46,6 +47,9 @@ export default async function Dashboard({ params }: { params: Promise<{ token: s
     attempts.filter((a) => a.phase === "practice" && a.live_score === "correct" && a.latency_ms !== null).map((a) => a.latency_ms!),
   );
   const openAlert = alerts.find((a) => !a.acknowledged_at);
+  const clarity = claritySeries(attempts, order).slice(-14);
+  const tips = recordingTips(attempts.slice(-60));
+  const sessionDate = new Map(sessions.map((s) => [s.id, s.started_at]));
   const recentSessions = sessions.slice(0, 12);
   const heatSessions = order.slice(-14);
   const name = `${profile.display_name} ${profile.honorific}`.trim();
@@ -112,6 +116,34 @@ export default async function Dashboard({ params }: { params: Promise<{ token: s
             </div>
           ))}
         </div>
+      </Section>
+
+      <Section title={t("clarityTitle")} hint={t("clarityHint")}>
+        {clarity.length === 0 ? (
+          <p className="text-ink/60">{t("clarityPending")}</p>
+        ) : (
+          <div className="flex items-end gap-3 overflow-x-auto border-b border-line pb-2">
+            {clarity.map((p) => (
+              <div key={p.sessionId} className="flex shrink-0 flex-col items-center gap-1">
+                <span className="text-xs text-ink/70">{p.clarity}</span>
+                <div className="flex h-28 w-8 items-end">
+                  <div className="w-8 rounded-t bg-haldi" style={{ height: `${Math.max(3, p.clarity)}%` }} />
+                </div>
+                <span className="text-xs text-ink/55">{fmtDate(sessionDate.get(p.sessionId) ?? "").split(",")[0]}</span>
+              </div>
+            ))}
+          </div>
+        )}
+        {tips.length > 0 && (
+          <div className="flex flex-col gap-2 rounded-2xl bg-haldi-soft p-4">
+            <h3 className="font-semibold text-ink">{t("tipsTitle")}</h3>
+            <ul className="flex list-disc flex-col gap-1 pl-5 text-ink/85">
+              {tips.map((tip) => (
+                <li key={tip}>{t(`tip_${tip}` as keyof typeof F)}</li>
+              ))}
+            </ul>
+          </div>
+        )}
       </Section>
 
       <Section title={t("probeTitle")} hint={t("probeHint")}>

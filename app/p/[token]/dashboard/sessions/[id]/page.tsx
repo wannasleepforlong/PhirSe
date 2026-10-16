@@ -75,6 +75,42 @@ export default async function SessionPage({ params }: { params: Promise<{ token:
                   </p>
                 )}
                 <span className={`self-start rounded-full px-3 py-1 text-sm ${score.style}`}>{t(score.key)}</span>
+                {a.clarity ? (
+                  <div className="flex flex-col gap-2 pt-1">
+                    <p className="flex flex-wrap items-baseline gap-x-3">
+                      <span className="text-ink/60">{t("clarity")}</span>
+                      <span className="wide text-2xl font-semibold text-neel">{a.clarity.clarity}</span>
+                      {a.clarity.heard && (
+                        <span className="text-ink/60">
+                          {t("modelHeard")}: <span className="text-lg text-ink">{a.clarity.heard}</span>
+                        </span>
+                      )}
+                    </p>
+                    {a.clarity.sounds.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5" aria-label={t("clarity")}>
+                        {a.clarity.sounds.map((snd, i) => (
+                          <span
+                            key={i}
+                            title={`${Math.round(snd.score * 100)}%`}
+                            className={`rounded-lg px-2.5 py-1 text-xl ${
+                              snd.score >= 0.7 ? "bg-mehendi-soft text-mehendi" : snd.score >= 0.4 ? "bg-haldi-soft" : "bg-sindoor/10 text-sindoor"
+                            }`}
+                          >
+                            {snd.unit}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {a.clarity.weakest && (
+                      <p className="text-sm text-ink/70">
+                        {t("weakSound")}: <span className="text-lg">{a.clarity.weakest}</span>
+                      </p>
+                    )}
+                    {a.clarity.flags.includes("other_speaker") && <p className="text-sm text-sindoor">{t("otherSpeaker")}</p>}
+                  </div>
+                ) : (
+                  a.verifierStatus === "pending" && <p className="text-sm text-ink/50">{t("clarityWaiting")}</p>
+                )}
               </div>
               <MarkAnswer token={token} attemptId={a.id} label={a.slp_label} mode={mode} />
             </li>

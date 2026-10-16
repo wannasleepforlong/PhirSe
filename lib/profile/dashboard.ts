@@ -2,6 +2,7 @@
 
 import "server-only";
 import { adminDb, AUDIO_BUCKET } from "@/lib/db/admin";
+import { parseClarity } from "@/lib/engine/clarity";
 
 export interface SessionRow {
   id: string;
@@ -35,6 +36,7 @@ export interface AttemptRow {
   live_score: "correct" | "not_yet" | "uncertain";
   slp_label: "correct" | "incorrect" | null;
   latency_ms: number | null;
+  clarity: unknown;
   created_at: string;
 }
 
@@ -78,7 +80,7 @@ export async function loadOverview(profileId: string) {
   for (let i = 0; i < ids.length; i += 30) {
     const { data } = await db
       .from("attempt")
-      .select("id, session_id, word_item_id, phase, cue_level, live_score, slp_label, latency_ms, created_at")
+      .select("id, session_id, word_item_id, phase, cue_level, live_score, slp_label, latency_ms, clarity, created_at")
       .in("session_id", ids.slice(i, i + 30));
     attempts.push(...((data ?? []) as AttemptRow[]));
   }
@@ -98,7 +100,7 @@ export async function loadSessionReview(profileId: string, sessionId: string) {
   const { data: rows } = await db
     .from("attempt")
     .select(
-      "id, word_item_id, phase, cue_level, audio_path, latency_ms, transcript_a, transcript_b, live_score, reason_code, slp_label, created_at, word_item(target_deva, set)",
+      "id, word_item_id, phase, cue_level, audio_path, latency_ms, transcript_a, transcript_b, live_score, reason_code, slp_label, clarity, verifier_status, speaker_similarity, created_at, word_item(target_deva, set)",
     )
     .eq("session_id", sessionId)
     .order("created_at");
@@ -117,6 +119,8 @@ export async function loadSessionReview(profileId: string, sessionId: string) {
       transcript_b: a.transcript_b as string | null,
       live_score: a.live_score as AttemptRow["live_score"],
       slp_label: a.slp_label as AttemptRow["slp_label"],
+      clarity: parseClarity(a.clarity),
+      verifierStatus: a.verifier_status as string,
       word: a.word_item as unknown as { target_deva: string; set: string } | null,
       audioUrl: a.audio_path ? (audio.get(a.audio_path as string) ?? null) : null,
     })),
