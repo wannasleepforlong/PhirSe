@@ -186,6 +186,8 @@ async function finalise(row: SessionRow, state: SessionState, words: WordRow[], 
   if (safety) {
     const kind = safety === "help_button" ? "help_button" : safety.category === "stop" ? null : safety.category;
     if (kind) {
+      // Practice stays paused until the SLP has checked on the patient and resumes it.
+      if (row.kind !== "judge_demo") await db.from("patient").update({ status: "paused" }).eq("id", row.patient_id);
       await db.from("alert").insert({
         patient_id: row.patient_id,
         session_id: row.id,
