@@ -12,7 +12,8 @@ const LADDER = [
   { step: { native: "First sound", hinglish: "Pehli awaaz" }, voice: "यह क… से शुरू होता है।", reply: "क… कप!", replyH: "K… kap!" },
 ];
 
-export default async function Home() {
+export default async function Home({ searchParams }: { searchParams: Promise<{ demo?: string }> }) {
+  const { demo } = await searchParams;
   const mode = await uiMode();
   const t = (k: keyof typeof L) => pick(L[k], mode);
   // This device already has a practice profile: offer to continue instead of starting over.
@@ -53,6 +54,19 @@ export default async function Home() {
               </Link>
             )}
           </div>
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-lg">
+            <form action="/api/demo/try" method="post">
+              <button className="font-medium text-neel underline underline-offset-4">{t("tryIt")}</button>
+            </form>
+            <Link href="/demo" className="font-medium text-neel underline underline-offset-4">
+              {t("seeDashboard")}
+            </Link>
+          </div>
+          {demo && (
+            <p role="alert" className="text-sindoor">
+              {t(demo === "busy" ? "demoBusy" : "demoError")}
+            </p>
+          )}
         </section>
 
         <section aria-labelledby="ladder" className="rounded-[2rem] bg-neel p-6 text-khadi sm:p-9">

@@ -11,12 +11,14 @@ export default function DashShell({
   name,
   mode,
   tab,
+  readOnly = false,
   children,
 }: {
   token: string;
   name: string;
   mode: UiMode;
   tab: Tab | null;
+  readOnly?: boolean;
   children: ReactNode;
 }) {
   const t = (k: keyof typeof F) => pick(F[k], mode);
@@ -35,9 +37,15 @@ export default function DashShell({
           </div>
           <div className="ml-auto flex items-center gap-3 pb-4">
             <UiModeToggle mode={mode} nativeLabel="English" />
-            <Link href={`/p/${token}`} className="rounded-full bg-neel px-5 py-2.5 font-medium text-khadi">
-              {t("practiceLink")}
-            </Link>
+            {readOnly ? (
+              <Link href="/start" className="rounded-full bg-neel px-5 py-2.5 font-medium text-khadi">
+                {t("startOwn")}
+              </Link>
+            ) : (
+              <Link href={`/p/${token}`} className="rounded-full bg-neel px-5 py-2.5 font-medium text-khadi">
+                {t("practiceLink")}
+              </Link>
+            )}
           </div>
           <nav className="flex w-full gap-6" aria-label="Dashboard">
             {tabs.map(([key, label, href]) => (
@@ -53,7 +61,10 @@ export default function DashShell({
           </nav>
         </div>
       </header>
-      <main className="mx-auto flex max-w-5xl flex-col gap-12 px-4 py-8 sm:px-8">{children}</main>
+      <main className="mx-auto flex max-w-5xl flex-col gap-12 px-4 py-8 sm:px-8">
+        {readOnly && <p className="rounded-2xl bg-neel-soft px-5 py-3 text-neel">{t("readOnlyBanner")}</p>}
+        {children}
+      </main>
     </div>
   );
 }

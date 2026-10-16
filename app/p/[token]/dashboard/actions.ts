@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { adminDb } from "@/lib/db/admin";
-import { deleteProfile, profileFromToken } from "@/lib/profile/service";
+import { deleteProfile, isReadOnly, profileFromToken, type Profile } from "@/lib/profile/service";
 import { forgetProfile } from "@/lib/profile/cookie";
 import { cachedTextClip, voiceFromSettings } from "@/lib/session/clips";
 
@@ -20,6 +20,15 @@ export interface WordInput {
 const SETS = new Set(["treated", "untreated", "reserve"]);
 const DEVANAGARI = /[ऀ-ॿ]/;
 
+const READ_ONLY = "This is a read-only demo. Start your own free practice to change words.";
+
+/** Load the profile for a change; showcase profiles refuse every change. */
+async function editable(token: string): Promise<Profile> {
+  const profile = await profileFromToken(token);
+  if (isReadOnly(profile)) throw new Error(READ_ONLY);
+  return profile;
+}
+
 function clean(s: string | null | undefined, max = 300) {
   const t = (s ?? "").trim();
   return t ? t.slice(0, max) : null;
@@ -27,6 +36,7 @@ function clean(s: string | null | undefined, max = 300) {
 
 export async function saveWord(token: string, w: WordInput): Promise<{ error?: string }> {
   const profile = await profileFromToken(token);
+  if (isReadOnly(profile)) return { error: READ_ONLY };
   const target = clean(w.target_deva, 40);
   if (!target) return { error: "Type the word first." };
   if (!DEVANAGARI.test(target)) {
@@ -56,14 +66,14 @@ export async function saveWord(token: string, w: WordInput): Promise<{ error?: s
 }
 
 export async function removeWord(token: string, wordId: string) {
-  const profile = await profileFromToken(token);
+  const profile = await editable(token);
   await adminDb().from("word_item").delete().eq("id", wordId).eq("patient_id", profile.id);
   revalidatePath(`/p/${token}/dashboard/words`);
 }
 
 /** Optional family check of one answer. Never changes what happened during practice. */
 export async function markAnswer(token: string, attemptId: string, label: "correct" | "incorrect" | null) {
-  const profile = await profileFromToken(token);
+  const profile = await editable(token);
   const db = adminDb();
   const { data: attempt } = await db
     .from("attempt")
@@ -81,7 +91,7 @@ export async function markAnswer(token: string, attemptId: string, label: "corre
 
 /** Pause or resume. Resuming also closes open safety alerts: the family confirmed everyone is OK. */
 export async function setPractice(token: string, status: "active" | "paused") {
-  const profile = await profileFromToken(token);
+  const profile = await editable(token);
   const db = adminDb();
   await db.from("patient").update({ status }).eq("id", profile.id);
   if (status === "active") {
@@ -110,6 +120,7 @@ export async function previewLine(token: string, text: string): Promise<{ url?: 
 export async function deleteEverything(token: string, confirmText: string): Promise<{ error?: string }> {
   if (confirmText.trim().toUpperCase() !== "DELETE") return { error: "Type DELETE to confirm." };
   const profile = await profileFromToken(token);
+  if (isReadOnly(profile)) return { error: READ_ONLY };
   await deleteProfile(profile.id);
   await forgetProfile();
   return {};

@@ -7,7 +7,7 @@ import { uiMode } from "@/lib/i18n/server";
 import { helpBySession, median, probeSeries, weeklyAdherence, wordStatus, type WordStatus } from "@/lib/engine/metrics";
 import { loadOverview } from "@/lib/profile/dashboard";
 import { claritySeries, recordingTips } from "@/lib/engine/clarity";
-import { profileFromToken, ProfileError } from "@/lib/profile/service";
+import { isReadOnly, profileFromToken, ProfileError } from "@/lib/profile/service";
 import { DeleteZone, PracticeSwitch } from "./Controls";
 
 export const dynamic = "force-dynamic";
@@ -29,6 +29,7 @@ export default async function Dashboard({ params }: { params: Promise<{ token: s
     throw e;
   });
   const mode = await uiMode();
+  const readOnly = isReadOnly(profile);
   const t = (k: keyof typeof F) => pick(F[k], mode);
   const { sessions, words, attempts, alerts } = await loadOverview(profile.id);
 
@@ -55,7 +56,7 @@ export default async function Dashboard({ params }: { params: Promise<{ token: s
   const name = `${profile.display_name} ${profile.honorific}`.trim();
 
   return (
-    <DashShell token={token} name={name} mode={mode} tab="overview">
+    <DashShell token={token} name={name} mode={mode} tab="overview" readOnly={readOnly}>
       {openAlert ? (
         <section role="alert" className="flex flex-col gap-3 rounded-2xl border-2 border-sindoor bg-sindoor/5 p-5">
           <h2 className="text-xl font-semibold text-sindoor">{t("safetyAlert")}</h2>
@@ -233,10 +234,10 @@ export default async function Dashboard({ params }: { params: Promise<{ token: s
         )}
       </Section>
 
-      {profile.status === "active" && !openAlert && <PracticeSwitch token={token} status="active" mode={mode} />}
+      {!readOnly && profile.status === "active" && !openAlert && <PracticeSwitch token={token} status="active" mode={mode} />}
 
       <p className="max-w-[70ch] text-ink/65">{t("therapistNote")}</p>
-      <DeleteZone token={token} mode={mode} />
+      {!readOnly && <DeleteZone token={token} mode={mode} />}
     </DashShell>
   );
 }

@@ -142,7 +142,17 @@ function WordForm({
   );
 }
 
-export default function WordEditor({ token, mode, words }: { token: string; mode: UiMode; words: WordRow[] }) {
+export default function WordEditor({
+  token,
+  mode,
+  words,
+  readOnly = false,
+}: {
+  token: string;
+  mode: UiMode;
+  words: WordRow[];
+  readOnly?: boolean;
+}) {
   const t = (k: keyof typeof F) => pick(F[k], mode);
   const [open, setOpen] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
@@ -154,12 +164,14 @@ export default function WordEditor({ token, mode, words }: { token: string; mode
 
   return (
     <div className="flex flex-col gap-10">
-      <div className="flex flex-col gap-4">
-        <button onClick={() => setAdding((a) => !a)} className="self-start rounded-full bg-haldi px-5 py-2.5 font-medium text-neel-deep">
-          + {t("addWord")}
-        </button>
-        {adding && <WordForm token={token} mode={mode} onDone={() => setAdding(false)} />}
-      </div>
+      {!readOnly && (
+        <div className="flex flex-col gap-4">
+          <button onClick={() => setAdding((a) => !a)} className="self-start rounded-full bg-haldi px-5 py-2.5 font-medium text-neel-deep">
+            + {t("addWord")}
+          </button>
+          {adding && <WordForm token={token} mode={mode} onDone={() => setAdding(false)} />}
+        </div>
+      )}
       {groups.map(([set, label]) => {
         const list = words.filter((w) => w.set === set);
         if (list.length === 0) return null;
@@ -179,7 +191,7 @@ export default function WordEditor({ token, mode, words }: { token: string; mode
                     <span className="w-28 shrink-0 text-2xl">{w.target_deva}</span>
                     <span className="truncate text-ink/60">{w.prompt_text ?? "—"}</span>
                   </button>
-                  {open === w.id && (
+                  {open === w.id && !readOnly && (
                     <div className="mt-3">
                       <WordForm token={token} mode={mode} word={w} onDone={() => setOpen(null)} />
                     </div>

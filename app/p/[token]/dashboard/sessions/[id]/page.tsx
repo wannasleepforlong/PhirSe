@@ -5,7 +5,7 @@ import DashShell, { fmtDate } from "@/components/dashboard/DashShell";
 import { F, pick } from "@/lib/i18n/dict";
 import { uiMode } from "@/lib/i18n/server";
 import { loadSessionReview } from "@/lib/profile/dashboard";
-import { profileFromToken, ProfileError } from "@/lib/profile/service";
+import { isReadOnly, profileFromToken, ProfileError } from "@/lib/profile/service";
 import MarkAnswer from "./MarkAnswer";
 
 export const dynamic = "force-dynamic";
@@ -33,11 +33,12 @@ export default async function SessionPage({ params }: { params: Promise<{ token:
   const review = await loadSessionReview(profile.id, id);
   if (!review) notFound();
   const mode = await uiMode();
+  const readOnly = isReadOnly(profile);
   const t = (k: keyof typeof F) => pick(F[k], mode);
   const answers = review.attempts.filter((a) => a.phase !== "warmup" && a.word);
 
   return (
-    <DashShell token={token} name={`${profile.display_name} ${profile.honorific}`.trim()} mode={mode} tab={null}>
+    <DashShell token={token} name={`${profile.display_name} ${profile.honorific}`.trim()} mode={mode} tab={null} readOnly={readOnly}>
       <div className="flex flex-col gap-2">
         <Link href={`/p/${token}/dashboard`} className="text-neel underline-offset-4 hover:underline">← {t("overview")}</Link>
         <h2 className="text-3xl font-semibold text-neel">
@@ -112,7 +113,7 @@ export default async function SessionPage({ params }: { params: Promise<{ token:
                   a.verifierStatus === "pending" && <p className="text-sm text-ink/50">{t("clarityWaiting")}</p>
                 )}
               </div>
-              <MarkAnswer token={token} attemptId={a.id} label={a.slp_label} mode={mode} />
+              {!readOnly && <MarkAnswer token={token} attemptId={a.id} label={a.slp_label} mode={mode} />}
             </li>
           );
         })}

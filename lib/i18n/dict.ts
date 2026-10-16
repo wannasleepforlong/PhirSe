@@ -168,6 +168,11 @@ export const F = {
   tip_clipped: e("The phone is too close or the voice too loud for the mic. Move it a little away.", "Phone bahut paas hai ya awaaz mic ke liye zyada tez. Thoda door rakhiye."),
   tip_other_speaker: e("Some answers sound like another person's voice. Let them answer on their own, even if it takes time.", "Kuch jawab kisi aur ki awaaz jaise lagte hain. Unhe khud jawab dene dijiye, chahe samay lage."),
   otherSpeaker: e("May be someone else's voice", "Shayad kisi aur ki awaaz"),
+  readOnlyBanner: e(
+    "Demo dashboard with sample sessions. You can look around and listen; changes are turned off.",
+    "Sample sessions wala demo dashboard. Aap dekh aur sun sakte hain; badlaav band hain.",
+  ),
+  startOwn: e("Start your own free practice", "Apni free practice shuru karein"),
   dangerZone: e("Delete this practice", "Yeh practice delete karein"),
   dangerBody: e("Removes all words, sessions and recordings for good. The link stops working.", "Saare shabd, sessions aur recordings hamesha ke liye hat jaayenge. Link kaam karna band kar dega."),
   deleteConfirm: e("Type DELETE to confirm", "Confirm karne ke liye DELETE likhiye"),
@@ -189,6 +194,10 @@ export const L = {
   begin: e("Start free practice", "Free practice shuru karein"),
   continue: e("Continue practice", "Practice jaari rakhein"),
   myDashboard: e("My dashboard", "Mera dashboard"),
+  tryIt: e("Try a 2-minute session", "2 minute ka session aazmaaiye"),
+  seeDashboard: e("See a sample dashboard", "Sample dashboard dekhiye"),
+  demoBusy: e("Too many demos from this network right now. Try again in a while.", "Is network se abhi bahut demos ho gaye. Thodi der baad try kariye."),
+  demoError: e("Could not start the demo. Check your connection and try again.", "Demo shuru nahi hua. Connection check karke phir try kariye."),
   patienceTitle: e("It waits", "Yeh intezaar karta hai"),
   patienceBody: e(
     "Finding a word can take eight seconds or more. PhirSe never cuts in and never says wrong. Silence brings the next hint.",

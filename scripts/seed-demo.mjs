@@ -1,6 +1,7 @@
 // Seeds (or refreshes) the demo practice profile with the shared starter word list.
-// Usage: node --env-file=.env scripts/seed-demo.mjs
+// Usage: node --env-file=.env scripts/seed-demo.mjs [--showcase]
 // Prints the practice and dashboard links. Re-running rotates the demo link.
+// --showcase makes the profile read-only (for the public /demo dashboard; set DEMO_SHOWCASE_TOKEN).
 
 import { createClient } from "@supabase/supabase-js";
 import { createHash, randomBytes } from "node:crypto";
@@ -13,17 +14,39 @@ if (!url || !key || !pepper) throw new Error("Need NEXT_PUBLIC_SUPABASE_URL, SUP
 const db = createClient(url, key, { auth: { persistSession: false } });
 const starter = JSON.parse(fs.readFileSync(new URL("../lib/words/starter.json", import.meta.url), "utf8"));
 
+const showcase = process.argv.includes("--showcase");
+
 async function main() {
   const token = randomBytes(24).toString("base64url");
   const hash = createHash("sha256").update(pepper).update(":").update(token).digest("hex");
 
-  let { data: profile } = await db.from("patient").select("id").eq("is_demo", true).limit(1).maybeSingle();
+  let { data: profile } = await db
+    .from("patient")
+    .select("id")
+    .eq("is_demo", true)
+    // try_demo is null on older profiles; a plain "not true" filter would drop those.
+    .or("settings->>try_demo.is.null,settings->>try_demo.neq.true")
+    .order("created_at")
+    .limit(1)
+    .maybeSingle();
   if (profile) {
-    await db.from("patient").update({ access_token_hash: hash, token_revoked_at: null, status: "active" }).eq("id", profile.id);
+    const { data: cur } = await db.from("patient").select("settings").eq("id", profile.id).single();
+    await db
+      .from("patient")
+      .update({ access_token_hash: hash, token_revoked_at: null, status: "active", settings: { ...cur.settings, read_only: showcase } })
+      .eq("id", profile.id);
   } else {
     const { data, error } = await db
       .from("patient")
-      .insert({ slp_id: null, display_name: "शर्मा", honorific: "जी", is_demo: true, created_by_relation: "child", access_token_hash: hash })
+      .insert({
+        slp_id: null,
+        display_name: "शर्मा",
+        honorific: "जी",
+        is_demo: true,
+        created_by_relation: "child",
+        access_token_hash: hash,
+        settings: { read_only: showcase },
+      })
       .select("id")
       .single();
     if (error) throw error;
@@ -44,6 +67,7 @@ async function main() {
   console.log(`Demo profile: ${profile.id}`);
   console.log(`Practice:  http://localhost:3000/p/${token}`);
   console.log(`Dashboard: http://localhost:3000/p/${token}/dashboard`);
+  if (showcase) console.log(`Read-only showcase. Put this in .env: DEMO_SHOWCASE_TOKEN=${token}`);
 }
 
 main().catch((e) => {

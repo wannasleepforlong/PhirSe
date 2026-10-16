@@ -85,6 +85,9 @@ export async function patientFromToken(token: string | null): Promise<PatientRow
   if (error) throw new SessionError(error.message, 500);
   if (!data || data.token_revoked_at) throw new SessionError("invalid link", 401);
   if (data.status !== "active") throw new SessionError("practice is paused for this profile", 403);
+  if ((data.settings as Record<string, unknown>)?.read_only === true) {
+    throw new SessionError("this demo profile is read-only", 403);
+  }
   return data as PatientRow;
 }
 
@@ -207,8 +210,10 @@ export interface StartResult {
   prefetch: { key: string; url: string }[];
 }
 
-export async function startSession(token: string | null, kind: "practice" | "judge_demo" = "practice"): Promise<StartResult> {
+export async function startSession(token: string | null): Promise<StartResult> {
   const patient = await patientFromToken(token);
+  // Try-it demos run a short 3-word session with no check round.
+  const kind: "practice" | "judge_demo" = patient.settings.try_demo === true ? "judge_demo" : "practice";
   const words = await loadWords(patient.id);
   const settings = settingsFrom(patient.settings);
   const db = adminDb();

@@ -47,6 +47,13 @@ export interface NewProfileInput {
   relation: string | null;
   familyPhone: string | null;
   storeAudio: boolean;
+  /** Throwaway "try it" profile: short sessions, removed after a day. */
+  tryDemo?: boolean;
+}
+
+/** Showcase profiles can be viewed by anyone with the link but never changed. */
+export function isReadOnly(profile: Profile): boolean {
+  return profile.settings.read_only === true;
 }
 
 const clean = (s: string | null | undefined, max = 80) => {
@@ -65,7 +72,9 @@ export async function createProfile(input: NewProfileInput): Promise<{ id: strin
     .insert({
       slp_id: null,
       display_name: name,
-      honorific: clean(input.honorific, 12) ?? "जी",
+      // An empty honorific is a real choice ("—" on the form): greet by name only.
+      honorific: input.honorific.trim().slice(0, 12),
+      is_demo: input.tryDemo === true,
       created_by_relation: clean(input.relation, 30),
       family_phone: clean(input.familyPhone, 20),
       access_token_hash: hashPatientToken(token),
@@ -82,6 +91,7 @@ export async function createProfile(input: NewProfileInput): Promise<{ id: strin
         probe_days: [1, 3, 5],
         graduation_rule: { consecutive_sessions: 3 },
         store_audio: input.storeAudio,
+        try_demo: input.tryDemo === true,
       },
     })
     .select("id")
