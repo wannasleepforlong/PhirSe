@@ -6,6 +6,7 @@ import {
   probeSeries,
   weeklyAdherence,
   wordStatus,
+  wasSaid,
   type AttemptLike,
   type PracticeAttempt,
 } from "@/lib/engine/metrics";
@@ -105,5 +106,15 @@ describe("helpBySession and wordStatus", () => {
     expect(wordStatus(h.get("cup"), ["s2", "s1"])).toBe("hard");
     expect(wordStatus(undefined, ["s1"])).toBe("new");
     expect(wordStatus(helpBySession([pa("x", "s1", "phonemic", "correct")]).get("x"), ["s1"])).toBe("hint");
+  });
+});
+
+describe("wasSaid", () => {
+  it("prefers a human label, then the speech model for undecided answers, then the live score", () => {
+    expect(wasSaid({ live_score: "uncertain", verifier_verdict: "match" })).toBe(true);
+    expect(wasSaid({ live_score: "uncertain", verifier_verdict: "close" })).toBe(false);
+    expect(wasSaid({ live_score: "uncertain", verifier_verdict: "match", slp_label: "incorrect" })).toBe(false);
+    expect(wasSaid({ live_score: "correct", verifier_verdict: "no_match" })).toBe(true);
+    expect(wasSaid({ live_score: "not_yet", verifier_verdict: "match" })).toBe(false);
   });
 });

@@ -8,6 +8,7 @@ export interface AttemptLike {
   word_set?: "treated" | "untreated" | "warmup" | "reserve" | null;
   session_id?: string;
   latency_ms?: number | null;
+  verifier_verdict?: string | null;
 }
 
 export interface Agreement {
@@ -76,7 +77,7 @@ export function probeSeries(
       { sessionId: a.session_id, date: a.created_at, treated: { correct: 0, total: 0 }, untreated: { correct: 0, total: 0 } };
     const bucket = a.word_set === "treated" ? p.treated : p.untreated;
     bucket.total++;
-    const correct = a.slp_label ? a.slp_label === "correct" : a.live_score === "correct";
+    const correct = wasSaid(a);
     if (correct) bucket.correct++;
     if (a.created_at < p.date) p.date = a.created_at;
     bySession.set(a.session_id, p);
@@ -119,7 +120,19 @@ export interface PracticeAttempt {
   cue_level: string | null;
   live_score: string;
   slp_label?: string | null;
+  verifier_verdict?: string | null;
   created_at: string;
+}
+
+/**
+ * Was the word said, for progress views? A human label wins; then, for answers the live check
+ * could not decide, the background speech model's verdict; otherwise the live score.
+ * Never changes what the person heard during practice.
+ */
+export function wasSaid(a: { live_score: string; slp_label?: string | null; verifier_verdict?: string | null }): boolean {
+  if (a.slp_label) return a.slp_label === "correct";
+  if (a.live_score === "uncertain" && a.verifier_verdict) return a.verifier_verdict === "match";
+  return a.live_score === "correct";
 }
 
 /**
@@ -130,8 +143,7 @@ export function helpBySession(attempts: PracticeAttempt[]): Map<string, Map<stri
   const out = new Map<string, Map<string, number>>();
   for (const a of attempts) {
     if (a.phase !== "practice" || !a.word_item_id || !a.cue_level) continue;
-    const said = a.slp_label ? a.slp_label === "correct" : a.live_score === "correct";
-    const rank = said ? CUE_RANK[a.cue_level] ?? 4 : 4;
+    const rank = wasSaid(a) ? CUE_RANK[a.cue_level] ?? 4 : 4;
     const row = out.get(a.word_item_id) ?? new Map<string, number>();
     row.set(a.session_id, Math.min(row.get(a.session_id) ?? 4, rank));
     out.set(a.word_item_id, row);

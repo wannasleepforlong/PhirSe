@@ -37,6 +37,7 @@ export interface AttemptRow {
   slp_label: "correct" | "incorrect" | null;
   latency_ms: number | null;
   clarity: unknown;
+  verifier_verdict: string | null;
   created_at: string;
 }
 
@@ -80,7 +81,7 @@ export async function loadOverview(profileId: string) {
   for (let i = 0; i < ids.length; i += 30) {
     const { data } = await db
       .from("attempt")
-      .select("id, session_id, word_item_id, phase, cue_level, live_score, slp_label, latency_ms, clarity, created_at")
+      .select("id, session_id, word_item_id, phase, cue_level, live_score, slp_label, latency_ms, clarity, verifier_verdict, created_at")
       .in("session_id", ids.slice(i, i + 30));
     attempts.push(...((data ?? []) as AttemptRow[]));
   }
