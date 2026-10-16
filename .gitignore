@@ -1,0 +1,63 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# next.js
+.next/
+out/
+next-env.d.ts
+
+# production
+build/
+dist/
+
+# testing
+coverage/
+playwright-report/
+test-results/
+
+# env and secrets
+.env
+.env.*
+!.env.example
+
+# supabase local
+supabase/.branches/
+supabase/.temp/
+
+# python (verifier)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# model weights and audio data
+*.onnx
+*.nemo
+*.ckpt
+data/recordings/
+spike-recordings/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# os / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+
+# local assistant settings
+.claude/settings.local.json
