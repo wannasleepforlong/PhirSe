@@ -55,9 +55,11 @@ async function renderClip(text: string, path: string, ref: ClipRef, ctx: ClipCon
   const up = await db.storage.from(AUDIO_BUCKET).upload(path, tts.audio, { contentType: tts.contentType, upsert: true });
   if (up.error) throw new Error(`clip upload failed: ${up.error.message}`);
   const isItem = ref.type === "item";
-  await db.from("audio_asset").insert({
-    patient_id: ctx.patientId,
-    word_item_id: isItem ? ref.itemId : null,
+  // The clip cache is shared and content-addressed: rows are not tied to a profile or word,
+  // so deleting either never throws away audio that other profiles reuse.
+  await db.from("audio_asset").upsert({
+    patient_id: null,
+    word_item_id: null,
     kind: isItem ? ref.cue : ref.key === "praise" ? "praise" : "system",
     system_key: isItem ? null : ref.key,
     variant: isItem ? 0 : (ref.variant ?? 0),
@@ -66,7 +68,7 @@ async function renderClip(text: string, path: string, ref: ClipRef, ctx: ClipCon
     pace: ctx.voice.pace,
     storage_path: path,
     source: "tts",
-  });
+  }, { onConflict: "storage_path", ignoreDuplicates: true });
 }
 
 /**
@@ -117,11 +119,7 @@ export const prefetchClips = resolveClips;
  * One free-text clip through the same cache (SLP voice preview, spike page).
  * Previewing a cue renders exactly the file a session will later play, so nothing is paid for twice.
  */
-export async function cachedTextClip(
-  text: string,
-  voice: Voice,
-  patientId: string | null,
-): Promise<{ url: string; key: string; cached: boolean }> {
+export async function cachedTextClip(text: string, voice: Voice): Promise<{ url: string; key: string; cached: boolean }> {
   const db = adminDb();
   const path = clipPath(text, voice);
   const { data: existing, error } = await db.from("audio_asset").select("id").eq("storage_path", path).limit(1);
@@ -131,8 +129,8 @@ export async function cachedTextClip(
     const tts = await synthesize({ text, speaker: voice.speaker, pace: voice.pace, codec: "mp3" });
     const up = await db.storage.from(AUDIO_BUCKET).upload(path, tts.audio, { contentType: tts.contentType, upsert: true });
     if (up.error) throw new Error(`clip upload failed: ${up.error.message}`);
-    await db.from("audio_asset").insert({
-      patient_id: patientId,
+    await db.from("audio_asset").upsert({
+      patient_id: null,
       kind: "system",
       system_key: "preview",
       text,
@@ -140,7 +138,7 @@ export async function cachedTextClip(
       pace: voice.pace,
       storage_path: path,
       source: "tts",
-    });
+    }, { onConflict: "storage_path", ignoreDuplicates: true });
   }
   const { data, error: signError } = await db.storage.from(AUDIO_BUCKET).createSignedUrl(path, SIGNED_URL_SECONDS);
   if (signError || !data) throw new Error(`signed url failed: ${signError?.message}`);

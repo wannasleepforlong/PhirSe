@@ -14,7 +14,7 @@ export async function POST(req: Request) {
   if (!text || text.length > 500) return NextResponse.json({ error: "text required (max 500 chars)" }, { status: 400 });
   const pace = Math.round(Math.min(2, Math.max(0.5, body.pace ?? 0.8)) * 100) / 100;
   try {
-    const clip = await cachedTextClip(text, { speaker: body.speaker ?? "priya", pace }, null);
+    const clip = await cachedTextClip(text, { speaker: body.speaker ?? "priya", pace });
     return NextResponse.json(clip);
   } catch (e) {
     return NextResponse.json({ error: (e as Error).message }, { status: 502 });

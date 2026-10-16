@@ -84,7 +84,7 @@ export async function patientFromToken(token: string | null): Promise<PatientRow
     .maybeSingle();
   if (error) throw new SessionError(error.message, 500);
   if (!data || data.token_revoked_at) throw new SessionError("invalid link", 401);
-  if (data.status !== "active") throw new SessionError("practice is paused for this patient", 403);
+  if (data.status !== "active") throw new SessionError("practice is paused for this profile", 403);
   return data as PatientRow;
 }
 
@@ -359,9 +359,12 @@ export async function handleAttempt(token: string | null, sessionId: string, inp
     ? scoreAttempt({ acceptedForms, transcriptA, transcriptB, speechDetected: input.speechDetected })
     : null;
 
-  // Store the attempt. Audio is kept only for the SLP's review.
+  // Store the attempt. Audio is kept only when the profile allowed it (for listening back in the dashboard).
+  const keepAudio = patient.settings.store_audio !== false;
   const audioPath = `attempts/${patient.id}/${row.id}/${randomUUID()}.wav`;
-  const up = await adminDb().storage.from(AUDIO_BUCKET).upload(audioPath, input.audio, { contentType: "audio/wav" });
+  const up = keepAudio
+    ? await adminDb().storage.from(AUDIO_BUCKET).upload(audioPath, input.audio, { contentType: "audio/wav" })
+    : { error: new Error("audio not kept") };
   await adminDb().from("attempt").insert({
     session_id: row.id,
     word_item_id: item?.id ?? null,
