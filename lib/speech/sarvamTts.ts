@@ -1,5 +1,7 @@
 // Sarvam Bulbul text-to-speech (server only). Used to pre-render approved prompts and cues.
 
+import { fetchWithRetry } from "./retry";
+
 const TTS_URL = "https://api.sarvam.ai/text-to-speech";
 
 export interface TtsRequest {
@@ -29,7 +31,7 @@ export async function synthesize(req: TtsRequest): Promise<TtsResult> {
   const pace = Math.min(2, Math.max(0.5, req.pace ?? DEFAULT_PACE));
 
   const started = performance.now();
-  const res = await fetch(TTS_URL, {
+  const res = await fetchWithRetry(TTS_URL, {
     method: "POST",
     headers: { "api-subscription-key": key, "content-type": "application/json" },
     body: JSON.stringify({

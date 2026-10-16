@@ -11,7 +11,7 @@ export type CueStep = "prompt" | "semantic" | "phonemic" | "model";
 
 export interface ClientAction {
   kind: "play_and_listen" | "play_only" | "ask_yes_no" | "safety_exit" | "end";
-  clips: { url: string; text: string }[];
+  clips: { url: string; text: string; key: string }[];
   listen?: { patienceMs: number; endOfSpeechMs: number; maxAttemptMs: number };
   itemId?: string;
   cue?: CueStep;
@@ -79,7 +79,7 @@ export function useSessionRunner(token: string) {
     }
   };
 
-  const cachedUrl = (url: string) => blobCache.current.get(url) ?? url;
+  const cachedUrl = (clip: { url: string; key: string }) => blobCache.current.get(clip.key) ?? clip.url;
 
   /** Play clips in order. Resolves false if interrupted (barge-in or a new action). */
   const playClips = useCallback(async (clips: ClientAction["clips"]): Promise<boolean> => {
@@ -88,7 +88,7 @@ export function useSessionRunner(token: string) {
     for (const clip of clips) {
       if (myToken !== playToken.current) return false;
       setCaption(clip.text);
-      el.src = cachedUrl(clip.url);
+      el.src = cachedUrl(clip);
       try {
         await el.play();
         await new Promise<void>((resolve, reject) => {
@@ -275,15 +275,15 @@ export function useSessionRunner(token: string) {
       const data = (await post("/api/p/session/start", "{}")) as {
         sessionId: string;
         action: ClientAction;
-        prefetch: string[];
+        prefetch: { key: string; url: string }[];
       };
       sessionId.current = data.sessionId;
       // Download every clip now so turns never wait on the network for audio.
       await Promise.all(
-        data.prefetch.map(async (u) => {
+        data.prefetch.map(async ({ key, url }) => {
           try {
-            const blob = await (await fetch(u)).blob();
-            blobCache.current.set(u, URL.createObjectURL(blob));
+            const blob = await (await fetch(url)).blob();
+            blobCache.current.set(key, URL.createObjectURL(blob));
           } catch {
             /* fall back to streaming that clip */
           }

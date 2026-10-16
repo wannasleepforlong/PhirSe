@@ -202,7 +202,7 @@ async function finalise(row: SessionRow, state: SessionState, words: WordRow[], 
 export interface StartResult {
   sessionId: string;
   action: ClientAction;
-  prefetch: string[];
+  prefetch: { key: string; url: string }[];
 }
 
 export async function startSession(token: string | null, kind: "practice" | "judge_demo" = "practice"): Promise<StartResult> {
@@ -256,7 +256,7 @@ export async function startSession(token: string | null, kind: "practice" | "jud
     refs.push({ type: "system", key });
   }
   for (let v = 0; v < settings.praiseVariants; v++) refs.push({ type: "system", key: "praise", variant: v });
-  const prefetch = (await prefetchClips(refs, ctx)).map((c) => c.url);
+  const prefetch = (await prefetchClips(refs, ctx)).map((c) => ({ key: c.key, url: c.url }));
 
   return { sessionId: row.id, action, prefetch };
 }

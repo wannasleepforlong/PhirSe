@@ -2,6 +2,8 @@
 // Pass A: saaras:v3 + mode=verbatim, no biasing (honest pass).
 // Pass B: saaras:v4 + keyterms (target-biased pass). keyterms only works on v4; mode only on v3.
 
+import { fetchWithRetry } from "./retry";
+
 const STT_URL = "https://api.sarvam.ai/speech-to-text";
 const MAX_KEYTERMS = 50;
 const MAX_KEYTERM_CHARS = 64;
@@ -50,11 +52,11 @@ export async function transcribe(req: SttRequest): Promise<SttResult> {
   }
 
   const started = performance.now();
-  const res = await fetch(STT_URL, {
+  const res = await fetchWithRetry(STT_URL, {
     method: "POST",
     headers: { "api-subscription-key": apiKey() },
     body: form,
-  });
+  }, 3);
   const ms = Math.round(performance.now() - started);
   if (!res.ok) {
     const body = await res.text().catch(() => "");
