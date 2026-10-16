@@ -20,6 +20,10 @@ export interface ClarityResult {
   weakest: string | null;
   sounds: SoundScore[];
   flags: string[];
+  source?: "sarvam" | "indicconformer";
+  speech_clarity?: number | null;
+  language?: string | null;
+  language_probability?: number | null;
   quality?: { loudness_dbfs: number; snr_db: number; onset_s: number; longest_pause_s: number };
 }
 
@@ -71,4 +75,16 @@ export function recordingTips(attempts: Array<{ clarity: unknown }>, minShare = 
     if (n >= 3 && n / scored.length >= minShare) tips.push(flag);
   }
   return tips;
+}
+
+const LANGUAGE_NAMES: Record<string, string> = {
+  "hi-IN": "Hindi", "en-IN": "English", "bn-IN": "Bengali", "ta-IN": "Tamil", "te-IN": "Telugu",
+  "kn-IN": "Kannada", "ml-IN": "Malayalam", "mr-IN": "Marathi", "gu-IN": "Gujarati", "pa-IN": "Punjabi", "od-IN": "Odia",
+};
+
+/** "Hindi, 98% sure" style label for the language Sarvam detected. */
+export function languageLabel(c: Pick<ClarityResult, "language" | "language_probability">): string | null {
+  if (!c.language) return null;
+  const name = LANGUAGE_NAMES[c.language] ?? c.language;
+  return c.language_probability == null ? name : `${name}, ${Math.round(c.language_probability * 100)}%`;
 }

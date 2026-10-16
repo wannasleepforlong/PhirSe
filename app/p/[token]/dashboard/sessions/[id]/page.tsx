@@ -7,6 +7,7 @@ import { uiMode } from "@/lib/i18n/server";
 import { loadSessionReview } from "@/lib/profile/dashboard";
 import { isReadOnly, profileFromToken, ProfileError } from "@/lib/profile/service";
 import MarkAnswer from "./MarkAnswer";
+import { languageLabel } from "@/lib/engine/clarity";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Session · PhirSe", robots: { index: false }, referrer: "no-referrer" };
@@ -102,6 +103,21 @@ export default async function SessionPage({ params }: { params: Promise<{ token:
                         ))}
                       </div>
                     )}
+                    <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink/60">
+                      {a.clarity.speech_clarity != null && (
+                        <span>
+                          {t("speechClarity")}: <span className="text-ink">{a.clarity.speech_clarity}</span>
+                        </span>
+                      )}
+                      {languageLabel(a.clarity) && (
+                        <span>
+                          {t("heardLanguage")}: <span className="text-ink">{languageLabel(a.clarity)}</span>
+                        </span>
+                      )}
+                      <span>
+                        {t("checkedBy")}: {t(a.clarity.source === "indicconformer" ? "checkerBackup" : "checkerSarvam")}
+                      </span>
+                    </p>
                     {a.clarity.weakest && (
                       <p className="text-sm text-ink/70">
                         {t("weakSound")}: <span className="text-lg">{a.clarity.weakest}</span>

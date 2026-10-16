@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { claritySeries, parseClarity, recordingTips } from "@/lib/engine/clarity";
+import { claritySeries, languageLabel, parseClarity, recordingTips } from "@/lib/engine/clarity";
 
 const c = (clarity: number, flags: string[] = [], verdict = "match") => ({ clarity, flags, verdict, word_match: 1 });
 
@@ -39,5 +39,13 @@ describe("recordingTips", () => {
       ...Array.from({ length: 5 }, () => ({ clarity: c(80) })),
     ];
     expect(recordingTips(many)).toEqual(["too_quiet", "noisy"]);
+  });
+});
+
+describe("languageLabel", () => {
+  it("names the language with confidence", () => {
+    expect(languageLabel({ language: "hi-IN", language_probability: 0.981 })).toBe("Hindi, 98%");
+    expect(languageLabel({ language: "xx-IN", language_probability: null })).toBe("xx-IN");
+    expect(languageLabel({ language: null, language_probability: 0.5 })).toBeNull();
   });
 });
