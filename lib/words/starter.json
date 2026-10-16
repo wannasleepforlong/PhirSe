@@ -1,0 +1,236 @@
+{
+  "note": "Everyday starter words. Practised words are drilled with cues; check words are only asked without hints to see if gains carry over. Families can edit both in the dashboard.",
+  "practised": [
+    {
+      "target": "कप",
+      "prompt": "सुबह हम चाय किसमें पीते हैं?",
+      "meaning": "यह रसोई में होता है, इसे हैंडल से पकड़ते हैं।",
+      "also": [
+        "kap",
+        "cup",
+        "प्याला"
+      ]
+    },
+    {
+      "target": "चाय",
+      "prompt": "सुबह-सुबह हम कौन सी गरम चीज़ पीते हैं?",
+      "meaning": "इसमें दूध, पत्ती और चीनी डालते हैं।",
+      "also": [
+        "chai",
+        "tea"
+      ]
+    },
+    {
+      "target": "पानी",
+      "prompt": "प्यास लगे तो हम क्या पीते हैं?",
+      "meaning": "यह नल से आता है।",
+      "also": [
+        "paani",
+        "pani",
+        "water",
+        "जल"
+      ]
+    },
+    {
+      "target": "रोटी",
+      "prompt": "दाल के साथ हम क्या खाते हैं, जो तवे पर बनती है?",
+      "meaning": "इसे आटे से बनाते हैं।",
+      "also": [
+        "roti",
+        "chapati",
+        "चपाती",
+        "फुलका"
+      ]
+    },
+    {
+      "target": "दरवाज़ा",
+      "prompt": "घर के अंदर आने के लिए हम क्या खोलते हैं?",
+      "meaning": "इस पर ताला लगता है।",
+      "also": [
+        "darwaza",
+        "door"
+      ]
+    },
+    {
+      "target": "चाबी",
+      "prompt": "ताला खोलने के लिए क्या लगाते हैं?",
+      "meaning": "यह छोटी सी होती है, जेब में रखते हैं।",
+      "also": [
+        "chabi",
+        "chaabi",
+        "key",
+        "चाभी"
+      ]
+    },
+    {
+      "target": "चश्मा",
+      "prompt": "पढ़ने के लिए आँखों पर क्या लगाते हैं?",
+      "meaning": "इसमें दो शीशे होते हैं।",
+      "also": [
+        "chashma",
+        "glasses",
+        "spectacles"
+      ]
+    },
+    {
+      "target": "घड़ी",
+      "prompt": "समय देखने के लिए हम क्या देखते हैं?",
+      "meaning": "इसे कलाई पर पहनते हैं।",
+      "also": [
+        "ghadi",
+        "watch",
+        "clock"
+      ]
+    },
+    {
+      "target": "फ़ोन",
+      "prompt": "बात करने के लिए हम किस पर नंबर मिलाते हैं?",
+      "meaning": "इसकी घंटी बजती है।",
+      "also": [
+        "phone",
+        "fon",
+        "mobile",
+        "मोबाइल"
+      ]
+    },
+    {
+      "target": "चम्मच",
+      "prompt": "दाल खाने के लिए हम क्या इस्तेमाल करते हैं?",
+      "meaning": "यह कटोरी के साथ आती है, स्टील की होती है।",
+      "also": [
+        "chammach",
+        "spoon"
+      ]
+    },
+    {
+      "target": "कुर्सी",
+      "prompt": "बैठने के लिए हम किस पर बैठते हैं?",
+      "meaning": "इसकी चार टांगें होती हैं।",
+      "also": [
+        "kursi",
+        "chair"
+      ]
+    },
+    {
+      "target": "बिस्तर",
+      "prompt": "रात को हम किस पर सोते हैं?",
+      "meaning": "इस पर तकिया और चादर होती है।",
+      "also": [
+        "bistar",
+        "bed",
+        "पलंग"
+      ]
+    },
+    {
+      "target": "दवाई",
+      "prompt": "बीमार होने पर डॉक्टर क्या देते हैं?",
+      "meaning": "इसे पानी के साथ खाते हैं।",
+      "also": [
+        "dawai",
+        "dawa",
+        "दवा",
+        "medicine",
+        "गोली"
+      ]
+    },
+    {
+      "target": "चप्पल",
+      "prompt": "घर में पैरों में क्या पहनते हैं?",
+      "meaning": "इसे दरवाज़े पर उतारते हैं।",
+      "also": [
+        "chappal",
+        "slipper",
+        "slippers"
+      ]
+    },
+    {
+      "target": "अख़बार",
+      "prompt": "सुबह कौन सा कागज़ आता है जिसमें ख़बरें होती हैं?",
+      "meaning": "इसे चाय के साथ पढ़ते हैं।",
+      "also": [
+        "akhbaar",
+        "akhbar",
+        "newspaper",
+        "paper"
+      ]
+    },
+    {
+      "target": "टीवी",
+      "prompt": "शाम को हम समाचार किस पर देखते हैं?",
+      "meaning": "इसका रिमोट होता है।",
+      "also": [
+        "tv",
+        "टेलीविज़न",
+        "television"
+      ]
+    }
+  ],
+  "check": [
+    {
+      "target": "सेब",
+      "prompt": "कौन सा लाल फल रोज़ खाने से सेहत अच्छी रहती है?",
+      "also": [
+        "seb",
+        "apple"
+      ]
+    },
+    {
+      "target": "तकिया",
+      "prompt": "सोते समय सिर के नीचे क्या रखते हैं?",
+      "also": [
+        "takiya",
+        "pillow"
+      ]
+    },
+    {
+      "target": "छाता",
+      "prompt": "बारिश में भीगने से बचने के लिए क्या खोलते हैं?",
+      "also": [
+        "chhata",
+        "chata",
+        "umbrella"
+      ]
+    },
+    {
+      "target": "कंघी",
+      "prompt": "बाल बनाने के लिए क्या इस्तेमाल करते हैं?",
+      "also": [
+        "kanghi",
+        "comb"
+      ]
+    },
+    {
+      "target": "साबुन",
+      "prompt": "हाथ धोने के लिए पानी के साथ क्या लगाते हैं?",
+      "also": [
+        "sabun",
+        "soap"
+      ]
+    },
+    {
+      "target": "पंखा",
+      "prompt": "गर्मी में छत पर क्या घूमता है?",
+      "also": [
+        "pankha",
+        "fan"
+      ]
+    },
+    {
+      "target": "ताला",
+      "prompt": "दरवाज़ा बंद करके उस पर क्या लगाते हैं?",
+      "also": [
+        "taala",
+        "tala",
+        "lock"
+      ]
+    },
+    {
+      "target": "गिलास",
+      "prompt": "पानी हम किसमें डालकर पीते हैं?",
+      "also": [
+        "gilaas",
+        "glass"
+      ]
+    }
+  ]
+}

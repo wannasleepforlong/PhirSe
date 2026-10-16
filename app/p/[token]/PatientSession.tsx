@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSessionRunner, type RunnerStatus } from "@/hooks/useSessionRunner";
 import { P, pick, type UiMode } from "@/lib/i18n/dict";
@@ -59,7 +60,15 @@ function TopBar({ mode, onHelp, inSession }: { mode: UiMode; onHelp?: () => void
   );
 }
 
-export default function PatientSession({ token, mode }: { token: string; mode: UiMode }) {
+export default function PatientSession({
+  token,
+  mode,
+  familyPhone,
+}: {
+  token: string;
+  mode: UiMode;
+  familyPhone: string | null;
+}) {
   const r = useSessionRunner(token);
   const [captions, setCaptions] = useState(true);
   // The start button only works once React has hydrated; until then show it as not yet ready.
@@ -76,6 +85,11 @@ export default function PatientSession({ token, mode }: { token: string; mode: U
         <div className="flex w-full max-w-sm flex-col gap-4">
           <a href="tel:112" className="wide rounded-2xl bg-white py-6 text-center text-3xl font-bold text-sindoor">{t("call112")}</a>
           <a href="tel:108" className="wide rounded-2xl border-2 border-white py-6 text-center text-3xl font-bold">{t("call108")}</a>
+          {familyPhone && (
+            <a href={`tel:${familyPhone.replace(/[^\d+]/g, "")}`} className="wide rounded-2xl border-2 border-white/70 py-5 text-center text-2xl font-semibold">
+              {t("callFamily")}
+            </a>
+          )}
         </div>
         <p className="text-center text-lg">{t("safetyNotified")}</p>
       </main>
@@ -90,6 +104,9 @@ export default function PatientSession({ token, mode }: { token: string; mode: U
           <span className="h-28 w-28 rounded-full bg-mehendi ring-[18px] ring-mehendi/25" aria-hidden />
           <h1 className="font-display text-5xl leading-tight">{t("doneTitle")}</h1>
           <p className="text-2xl text-khadi/80">{t("doneBody")}</p>
+          <Link href={`/p/${token}/dashboard`} className="mt-4 text-lg text-khadi/75 underline underline-offset-4">
+            {t("dashboard")}
+          </Link>
         </div>
       </main>
     );
@@ -121,6 +138,9 @@ export default function PatientSession({ token, mode }: { token: string; mode: U
         <footer className="flex max-w-xl flex-col gap-1 text-center text-base leading-relaxed text-khadi/65">
           <p>{t("roomTip")}</p>
           <p>{t("notEmergency")}</p>
+          <Link href={`/p/${token}/dashboard`} className="mt-2 text-khadi/80 underline underline-offset-4">
+            {t("dashboard")}
+          </Link>
         </footer>
       </main>
     );

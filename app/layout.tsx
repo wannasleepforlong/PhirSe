@@ -20,7 +20,7 @@ const tiro = Tiro_Devanagari_Hindi({
 export const metadata: Metadata = {
   title: "PhirSe — फिर से",
   description:
-    "Daily Hindi word-finding practice for people with aphasia after stroke, prescribed and supervised by their speech therapist.",
+    "Daily Hindi word-finding practice at home for people with aphasia after a stroke, with progress the family can see.",
 };
 
 export const viewport: Viewport = {

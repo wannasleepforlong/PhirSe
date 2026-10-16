@@ -1,5 +1,5 @@
 // Safety keyword scan. Matching is deliberately broad: a false positive ends a session gently,
-// a false negative is unacceptable. The final list must be approved by the supervising SLP.
+// a false negative is unacceptable. Review the list with a clinician before wider use.
 
 import { normaliseText } from "./hindiNormalise";
 
@@ -62,7 +62,7 @@ export function scanSafety(...transcripts: Array<string | null | undefined>): Sa
   return hits;
 }
 
-/** Categories that must stop the session and alert family and SLP. */
+/** Categories that must stop the session and alert the family. */
 export function isEmergency(hit: SafetyHit): boolean {
   return hit.category === "befast" || hit.category === "chest_pain" || hit.category === "choking";
 }

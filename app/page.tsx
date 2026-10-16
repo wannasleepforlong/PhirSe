@@ -3,6 +3,7 @@ import { L, pick } from "@/lib/i18n/dict";
 import { uiMode } from "@/lib/i18n/server";
 import { toHinglish } from "@/lib/i18n/hinglish";
 import UiModeToggle from "@/components/UiModeToggle";
+import { rememberedToken } from "@/lib/profile/cookie";
 
 // One real item from the demo list, shown as the cue ladder a patient hears.
 const LADDER = [
@@ -14,6 +15,8 @@ const LADDER = [
 export default async function Home() {
   const mode = await uiMode();
   const t = (k: keyof typeof L) => pick(L[k], mode);
+  // This device already has a practice profile: offer to continue instead of starting over.
+  const token = await rememberedToken();
   const say = (s: string) => (mode === "hinglish" ? toHinglish(s) : s);
 
   return (
@@ -22,9 +25,11 @@ export default async function Home() {
         <span className="text-lg font-semibold text-neel">PhirSe</span>
         <div className="ml-auto flex items-center gap-4">
           <UiModeToggle mode={mode} nativeLabel="English" />
-          <Link href="/slp/login" className="text-sm font-medium text-neel underline-offset-4 hover:underline">
-            {t("slpSignIn")}
-          </Link>
+          {token && (
+            <Link href={`/p/${token}/dashboard`} className="text-sm font-medium text-neel underline-offset-4 hover:underline">
+              {t("myDashboard")}
+            </Link>
+          )}
         </div>
       </header>
 
@@ -33,9 +38,20 @@ export default async function Home() {
           <h1 className="font-display text-[5.5rem] leading-[0.95] text-neel sm:text-[8rem]">{t("headline")}</h1>
           <p className="max-w-[34ch] text-2xl leading-snug text-ink">{t("sub")}</p>
           <div className="flex flex-wrap gap-3 pt-2">
-            <Link href="/slp/login" className="rounded-full bg-neel px-6 py-3 text-lg font-medium text-khadi">
-              {t("trySession")}
-            </Link>
+            {token ? (
+              <>
+                <Link href={`/p/${token}`} className="rounded-full bg-neel px-6 py-3 text-lg font-medium text-khadi">
+                  {t("continue")}
+                </Link>
+                <Link href="/start" className="rounded-full px-6 py-3 text-lg font-medium text-neel underline-offset-4 hover:underline">
+                  {t("begin")}
+                </Link>
+              </>
+            ) : (
+              <Link href="/start" className="rounded-full bg-neel px-6 py-3 text-lg font-medium text-khadi">
+                {t("begin")}
+              </Link>
+            )}
           </div>
         </section>
 
@@ -74,6 +90,10 @@ export default async function Home() {
             </div>
           ))}
         </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 pb-10 sm:px-8">
+        <p className="max-w-[75ch] text-lg leading-relaxed text-ink/75">{t("evidence")}</p>
       </section>
 
       <footer className="mx-auto max-w-6xl px-4 pb-10 text-base text-ink/70 sm:px-8">{t("footer")}</footer>

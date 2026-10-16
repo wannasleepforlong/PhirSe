@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { agreement, median, probeSeries, weeklyAdherence, type AttemptLike } from "@/lib/engine/metrics";
+import {
+  agreement,
+  helpBySession,
+  median,
+  probeSeries,
+  weeklyAdherence,
+  wordStatus,
+  type AttemptLike,
+  type PracticeAttempt,
+} from "@/lib/engine/metrics";
 
 const a = (live: AttemptLike["live_score"], slp: AttemptLike["slp_label"]): AttemptLike => ({
   live_score: live,
@@ -64,5 +73,37 @@ describe("median", () => {
     expect(median([3, 1, 2])).toBe(2);
     expect(median([4, 1, 3, 2])).toBe(2.5);
     expect(median([])).toBeNull();
+  });
+});
+
+
+const pa = (word: string, session: string, cue: string, score: string, label: string | null = null): PracticeAttempt => ({
+  word_item_id: word, session_id: session, phase: "practice", cue_level: cue, live_score: score, slp_label: label, created_at: "",
+});
+
+describe("helpBySession and wordStatus", () => {
+  it("records the least help needed per word per session", () => {
+    const h = helpBySession([
+      pa("cup", "s1", "prompt", "not_yet"),
+      pa("cup", "s1", "semantic", "correct"),
+      pa("tea", "s1", "model", "correct"),
+      pa("door", "s1", "model", "not_yet"),
+    ]);
+    expect(h.get("cup")?.get("s1")).toBe(1);
+    expect(h.get("tea")?.get("s1")).toBe(3);
+    expect(h.get("door")?.get("s1")).toBe(4);
+  });
+
+  it("lets a family label override the live score", () => {
+    const h = helpBySession([pa("chai", "s1", "prompt", "uncertain", "correct")]);
+    expect(h.get("chai")?.get("s1")).toBe(0);
+  });
+
+  it("uses the most recent session for status", () => {
+    const h = helpBySession([pa("cup", "s1", "model", "correct"), pa("cup", "s2", "prompt", "correct")]);
+    expect(wordStatus(h.get("cup"), ["s1", "s2"])).toBe("easy");
+    expect(wordStatus(h.get("cup"), ["s2", "s1"])).toBe("hard");
+    expect(wordStatus(undefined, ["s1"])).toBe("new");
+    expect(wordStatus(helpBySession([pa("x", "s1", "phonemic", "correct")]).get("x"), ["s1"])).toBe("hint");
   });
 });
