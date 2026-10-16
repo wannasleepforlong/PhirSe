@@ -17,6 +17,15 @@ def quality(**kw) -> AudioQuality:
     return AudioQuality(**base)
 
 
+def frames_for(tokens: list[str], *rows: dict[int, float]) -> np.ndarray:
+    out = np.full((len(rows), len(tokens)), 1e-6)
+    for t, row in enumerate(rows):
+        for tok, p in row.items():
+            out[t, tok] = p
+    out /= out.sum(axis=1, keepdims=True)
+    return np.log(out)
+
+
 def frames(*rows: dict[int, float]) -> np.ndarray:
     out = np.full((len(rows), len(TOKENS)), 1e-6)
     for t, row in enumerate(rows):
@@ -31,6 +40,20 @@ def test_vocab_encode_prefers_word_start_pieces_and_decodes():
     assert V.encode("चाय") == [3, 4]
     assert V.encode("xyz") is None
     assert V.decode([1, 2]) == "कप"
+
+
+def test_encode_variants_lists_every_split_longest_first():
+    v = Vocab(["<b>", "▁च", "ाय", "ा", "य", "स्त", "स", "्", "त", "▁ब", "ि"], blank=0)
+    assert v.encode_variants("चाय") == [[1, 2], [1, 3, 4]]
+    assert v.encode_variants("बिस्त") == [[9, 10, 5], [9, 10, 6, 7, 8]]
+
+
+def test_nukta_free_spelling_is_accepted_but_reported_as_the_original_form():
+    toks = ["<b>", "▁फ", "ो", "न", "़"]
+    lp = frames_for(toks, {0: 0.9}, {1: 0.95}, {0: 0.9}, {2: 0.95}, {3: 0.95}, {0: 0.9})
+    c = score_attempt(lp, Vocab(toks, 0), 0.04, ["फ़ोन"], quality())
+    assert c.verdict == "match" and c.form == "फ़ोन"
+    assert c.similarity == 1.0
 
 
 def test_is_devanagari():

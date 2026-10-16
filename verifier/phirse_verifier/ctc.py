@@ -87,6 +87,12 @@ class AlignedToken:
 
 def forced_align(logp: np.ndarray, target: list[int], blank: int) -> list[AlignedToken] | None:
     """Viterbi CTC alignment of the target. Returns one span per target token, or None if impossible."""
+    res = viterbi(logp, target, blank)
+    return res[0] if res else None
+
+
+def viterbi(logp: np.ndarray, target: list[int], blank: int) -> tuple[list[AlignedToken], float] | None:
+    """Best single CTC alignment of the target: (spans per token, log-prob of that path)."""
     T = logp.shape[0]
     if not target or T < len(target):
         return None
@@ -113,6 +119,7 @@ def forced_align(logp: np.ndarray, target: list[int], blank: int) -> list[Aligne
     s = S - 1 if dp[T - 1, S - 1] >= dp[T - 1, S - 2] else S - 2
     if dp[T - 1, s] <= NEG_INF / 2:
         return None
+    path_logp = float(dp[T - 1, s])
     states = np.zeros(T, dtype=np.int64)
     for t in range(T - 1, -1, -1):
         states[t] = s
@@ -126,7 +133,7 @@ def forced_align(logp: np.ndarray, target: list[int], blank: int) -> list[Aligne
             return None
         start, end = int(frames[0]), int(frames[-1]) + 1
         spans.append(AlignedToken(tok, start, end, float(probs[start:end, tok].mean())))
-    return spans
+    return spans, path_logp
 
 
 @dataclass
@@ -141,15 +148,19 @@ class TargetMatch:
 def target_match(logp: np.ndarray, target: list[int], blank: int) -> TargetMatch:
     """Goodness-of-pronunciation style score for one target token sequence.
 
-    match = exp((log P(target) - log P(best path)) / n_tokens), clipped to [0, 1].
-    1.0 means the target is as likely as anything the model would have said on its own.
-    Dividing by the number of tokens keeps long and short words comparable.
+    match = exp((log P(best alignment of target) - log P(best free path)) / n_tokens), in [0, 1].
+    Both sides are single best paths, so the ratio never exceeds 1: 1.0 means the model's own best
+    guess already is the target. Dividing by the number of tokens keeps long and short words comparable.
     """
     ll = ctc_log_likelihood(logp, target, blank)
     _, best = greedy_decode(logp, blank)
+    vit = viterbi(logp, target, blank)
+    if not vit:
+        return TargetMatch(target, ll, best, 0.0, None)
+    spans, path = vit
     n = max(1, len(target))
-    m = float(np.exp(min(0.0, (ll - best) / n))) if ll > NEG_INF / 2 else 0.0
-    return TargetMatch(target, ll, best, m, forced_align(logp, target, blank))
+    m = float(np.exp(min(0.0, (path - best) / n)))
+    return TargetMatch(target, ll, best, m, spans)
 
 
 def edit_distance(a: list, b: list) -> int:

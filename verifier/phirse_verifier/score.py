@@ -26,6 +26,17 @@ def is_devanagari(text: str) -> bool:
     return any(ord(c) in DEVANAGARI for c in text)
 
 
+_NUKTA_PRECOMPOSED = {
+    "क़": "क", "ख़": "ख", "ग़": "ग", "ज़": "ज",
+    "ड़": "ड", "ढ़": "ढ", "फ़": "फ", "य़": "य",
+}
+
+
+def without_nukta(text: str) -> str:
+    """फ़ोन -> फोन. Speakers and the model often drop the nukta; it is not a different word."""
+    return "".join(_NUKTA_PRECOMPOSED.get(c, c) for c in text).replace("़", "")
+
+
 class Vocab:
     """Token strings of a CTC model, with a greedy longest-match tokenizer for target words.
 
@@ -58,6 +69,33 @@ class Vocab:
                 return None
             out.append(found[0])
             i += found[1]
+        return out
+
+    def encode_variants(self, word: str, limit: int = 64) -> list[list[int]]:
+        """Every way to split the word into vocabulary pieces (up to ``limit``), longest pieces first.
+
+        CTC scores depend on the split, and the model's own SentencePiece split is unknown here,
+        so the scorer tries each split and keeps the best. Single words have few splits.
+        """
+        word = word.strip()
+        out: list[list[int]] = []
+
+        def walk(i: int, acc: list[int]) -> None:
+            if len(out) >= limit:
+                return
+            if i == len(word):
+                out.append(list(acc))
+                return
+            for n in range(min(self.max_len, len(word) - i), 0, -1):
+                piece = word[i : i + n]
+                for c in ([SP_SPACE + piece, piece] if i == 0 else [piece]):
+                    if c in self.index:
+                        acc.append(self.index[c])
+                        walk(i + n, acc)
+                        acc.pop()
+                        break
+
+        walk(0, [])
         return out
 
     def decode(self, ids: list[int]) -> str:
@@ -128,15 +166,18 @@ def score_attempt(
         return Clarity(0, 0.0, 0.0, 0.0, recording, "no_speech", None, heard, 0.0, None, [], None, flags)
 
     best = None
+    forms: list[tuple[str, str]] = []  # (spelling scored, form reported)
     for form in accepted_forms:
-        if not is_devanagari(form):
-            continue  # the Hindi acoustic model writes Devanagari; Roman/English spellings cannot be scored
-        ids = vocab.encode(form)
-        if not ids:
-            continue
-        m = target_match(logp, ids, vocab.blank)
-        if best is None or m.match > best[1].match:
-            best = (form, m)
+        if is_devanagari(form):
+            forms.append((form, form))
+            plain = without_nukta(form)
+            if plain != form:
+                forms.append((plain, form))
+    for spelled, form in forms:  # the Hindi acoustic model writes Devanagari; Roman/English spellings cannot be scored
+        for ids in vocab.encode_variants(spelled):
+            m = target_match(logp, ids, vocab.blank)
+            if best is None or m.match > best[1].match:
+                best = (form, m)
 
     if best is None:
         flags.append("target_not_in_vocab")
@@ -153,8 +194,8 @@ def score_attempt(
         if w.score < 0.5:
             weakest = w.unit
 
-    target_chars = list(form)
-    heard_chars = list(heard.replace(" ", ""))
+    target_chars = list(without_nukta(form))
+    heard_chars = list(without_nukta(heard).replace(" ", ""))
     similarity = 1.0 - edit_distance(heard_chars, target_chars) / max(len(target_chars), len(heard_chars), 1)
 
     if m.match >= MATCH_WORD and articulation >= MATCH_ARTICULATION:
