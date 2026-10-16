@@ -2,6 +2,27 @@
 
 Date: 16 Oct 2026 · Deadline: 31 Oct 2026 (Bolna Symphony Buildathon) · 15 build days
 
+## Revision, 16 Oct: self-serve, therapist optional
+
+The original plan below put a speech-language pathologist (SLP) in charge of every patient. That made PhirSe depend on the scarcest resource it is meant to work around. PhirSe is now a **self-serve home practice tool**; a therapist is an optional add-on.
+
+| Area | Before | Now |
+| --- | --- | --- |
+| Who sets it up | SLP creates the patient after consent | Anyone: a family member presses "Start free practice" at `/start` (about one minute, no account) |
+| Access | SLP magic-link login; patient token link | One private link per practice profile: `/p/<token>` to practise, `/p/<token>/dashboard` for progress and words. The device remembers it. |
+| Words | SLP chooses and approves every word | 24 everyday starter words ready on day one (`lib/words/starter.json`); the family adds personal words in the dashboard, live immediately |
+| Review | SLP labels attempts | Anyone with the link can listen back and optionally mark answers ("right word" / "not the word"); labels still feed agreement metrics |
+| Safety | Alert to family + SLP; SLP resumes practice | Practice stops, safety screen shows 112, 108 and the family's number; dashboard shows the alert until the family confirms everyone is OK |
+| Therapist | Required | Optional: share the dashboard link |
+| Claims | "SLP-prescribed home practice" | "A practice tool, not a treatment"; no medical claims (keeps PhirSe on the wellness side of the CDSCO line, see research doc 04) |
+| TTS cost | Rendered per patient | One shared, content-addressed clip cache in Supabase; a new profile costs about 3 TTS calls (its greeting) |
+
+**Removed:** `/slp/*` dashboard, SLP sign-in and magic links, auth middleware, demo SLP login.
+
+**Still true from the plan below:** session design, cue ladder, patience-first turn-taking, two-pass honest scoring, safety keywords, spaced repetition, metrics, judge mode, background verifier, timeline shape.
+
+**Remaining work after this revision:** real-mic test in Chrome; Bolna rules check; deploy (Vercel `bom1`); judge mode on the landing page; background verifier; family-labelled validation set (replaces the SLP-labelled set: recruit 2–3 families or role-play); demo script and video. Sections below that mention SLP approval, SLP login or SLP review describe the old design.
+
 ## 0. What we are building, in one paragraph
 
 PhirSe is SLP-prescribed **word-finding (anomia) practice for stroke survivors with aphasia, in Hindi**. The research pack designed it as a daily phone call. This plan delivers the same therapy as a **voice-first website**: the patient (with a family member nearby) opens a link on a phone or laptop, presses one big button, and a warm, slow Hindi voice (TTS) runs a 10–15 minute session: warm-up, 10–15 naming items with a cueing ladder, an occasional probe, and a close. The browser records each attempt, STT transcribes it, **our server** scores it against the known target word and decides the next step. A speech-language pathologist (SLP) sets up the patient, approves every word and prompt, reviews attempts in a dashboard, and sees progress. Family gets a short daily Hindi summary. Safety exits (BE-FAST signs, distress, fatigue) stop the session and alert humans.
