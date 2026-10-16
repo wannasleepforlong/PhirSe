@@ -5,7 +5,8 @@ import numpy as np
 
 from phirse_verifier.backend import Posteriors
 from phirse_verifier.score import Vocab
-from phirse_verifier.worker import Worker
+from phirse_verifier.sarvam import Detection
+from phirse_verifier.worker import Scorer, Worker
 
 TOKENS = ["<blank>", "▁क", "प"]
 
@@ -71,10 +72,62 @@ def attempt(**kw):
     return base
 
 
+class CountingBackup(FakeBackend):
+    loads = 0
+
+
+def make(detected: Detection | None, backup=True):
+    def detector(_data):
+        if detected is None:
+            raise RuntimeError("sarvam down")
+        return detected
+
+    def factory():
+        CountingBackup.loads += 1
+        return CountingBackup()
+
+    return Scorer(detector, factory if backup else None)
+
+
+def test_sarvam_alone_scores_a_clear_answer_and_never_loads_the_backup():
+    CountingBackup.loads = 0
+    db = FakeDb()
+    status = Worker(make(Detection("कप", "hi-IN", 0.97)), db, None).process(attempt(live_score="correct"))
+    assert status == "done (sarvam)"
+    values = db.updates[-1][2]
+    assert values["verifier_verdict"] == "match"
+    assert values["clarity"]["source"] == "sarvam"
+    assert values["clarity"]["language"] == "hi-IN"
+    assert values["clarity"]["language_probability"] == 0.97
+    assert CountingBackup.loads == 0
+
+
+def test_backup_runs_only_for_open_answers_and_loads_once():
+    CountingBackup.loads = 0
+    db = FakeDb()
+    w = Worker(make(Detection("चाहे", "hi-IN", 0.99)), db, None)
+    assert w.process(attempt(live_score="uncertain")) == "done (indicconformer)"
+    assert w.process(attempt(live_score="uncertain")) == "done (indicconformer)"
+    assert CountingBackup.loads == 1
+    assert db.updates[-1][2]["clarity"]["sarvam_heard"] == "चाहे"
+
+
+def test_sarvam_failure_falls_back_to_backup():
+    db = FakeDb()
+    assert Worker(make(None), db, None).process(attempt()) == "done (indicconformer)"
+
+
+def test_no_backup_configured_keeps_sarvam_verdict():
+    db = FakeDb()
+    chai = attempt(live_score="uncertain", word_item={"target_deva": "चाय", "accepted_forms": ["chai"]})
+    assert Worker(make(Detection("चाहे", "hi-IN", 0.99), backup=False), db, None).process(chai) == "done (sarvam)"
+    assert db.updates[-1][2]["verifier_verdict"] == "close"
+
+
 def test_process_writes_clarity_without_touching_live_score():
     db = FakeDb()
-    status = Worker(FakeBackend(), db, None).process(attempt())
-    assert status == "done"
+    status = Worker(make(None), db, None).process(attempt())
+    assert status == "done (indicconformer)"
     table, match, values = db.updates[-1]
     assert table == "attempt" and match == {"id": "a1"}
     assert values["verifier_status"] == "done"
@@ -87,7 +140,7 @@ def test_process_writes_clarity_without_touching_live_score():
 
 def test_attempt_without_audio_is_skipped():
     db = FakeDb()
-    assert Worker(FakeBackend(), db, None).process(attempt(audio_path=None)) == "skipped"
+    assert Worker(make(Detection("कप", "hi-IN", 0.9)), db, None).process(attempt(audio_path=None)) == "skipped"
     assert db.updates[-1][2] == {"verifier_status": "skipped"}
 
 
@@ -97,7 +150,7 @@ def test_failures_retry_then_fail():
             raise RuntimeError("model crashed")
 
     db = FakeDb()
-    w = Worker(Broken(), db, None)
+    w = Worker(Scorer(lambda _d: (_ for _ in ()).throw(RuntimeError("sarvam down")), Broken), db, None)
     assert w.process(attempt(verifier_attempts=0)) == "failed"
     assert db.updates[-1][2] == {"verifier_attempts": 1, "verifier_status": "pending"}
     w.process(attempt(verifier_attempts=2))

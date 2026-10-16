@@ -22,7 +22,7 @@ Next.js (App Router) + TypeScript + Tailwind · Supabase (Postgres, Storage; Mum
 
 - The server owns the therapy state machine. The browser only plays audio, listens, uploads.
 - `lib/engine/` holds pure functions (state machine, scorer, scheduler, normaliser, safety). No Next.js, DB or network imports there. Every change there needs unit tests.
-- Nothing slow or optional in the live request path. The IndicConformer verifier is a background job.
+- Nothing slow or optional in the live request path. Clarity scoring is a background job (`verifier/`): Sarvam with automatic language detection first; IndicConformer is only a lazily loaded backup for answers Sarvam cannot settle.
 - The LLM never runs in the live session and never decides scores.
 - Every TTS line goes through the shared clip cache (`lib/session/clips.ts`): content-addressed by text + voice, stored in Supabase, never tied to a profile. Never call `synthesize()` directly from a route.
 - The patient never hears "wrong" (गलत). `uncertain` and `not_yet` both lead to the next cue.

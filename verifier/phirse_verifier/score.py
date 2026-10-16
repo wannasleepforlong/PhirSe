@@ -128,6 +128,7 @@ class Clarity:
     sounds: list[SoundScore] = field(default_factory=list)
     target_ll: float | None = None
     flags: list[str] = field(default_factory=list)
+    speech_clarity: int | None = None  # clarity of the speech itself, whatever word was said
 
     def to_dict(self) -> dict:
         return {
@@ -146,6 +147,7 @@ class Clarity:
                 for s in self.sounds
             ],
             "flags": self.flags,
+            "speech_clarity": self.speech_clarity,
         }
 
 
