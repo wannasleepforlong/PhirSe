@@ -30,6 +30,7 @@ export default async function SlpHome() {
     <Shell name={me.name}>
       <div className="flex flex-wrap items-end gap-3">
         <h1 className="text-2xl font-bold">Patients</h1>
+        <Link href="/slp/patients/new" className="ml-auto rounded-full bg-accent px-4 py-2 text-sm text-white">+ New patient</Link>
         {alertsTotal > 0 && (
           <span className="rounded-full bg-alert px-3 py-1 text-sm font-medium text-white">{alertsTotal} open safety alert{alertsTotal > 1 ? "s" : ""}</span>
         )}
