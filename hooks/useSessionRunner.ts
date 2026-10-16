@@ -42,11 +42,31 @@ type MicVADLike = {
 
 type ListenMode = "off" | "bargein" | "answer";
 
+/** What went wrong, in terms the patient screen can explain. */
+export type RunnerErrorKind = "mic" | "link" | "paused" | "nowords" | "network";
+
+class HttpError extends Error {
+  constructor(message: string, readonly status: number) {
+    super(message);
+  }
+}
+
+function classify(e: unknown): RunnerErrorKind {
+  if (e instanceof HttpError) {
+    if (e.status === 401) return "link";
+    if (e.status === 403) return "paused";
+    if (e.status === 409) return "nowords";
+    return "network";
+  }
+  const msg = e instanceof Error ? `${e.name} ${e.message}` : String(e);
+  return /permission|denied|notallowed|notfound|getusermedia/i.test(msg) ? "mic" : "network";
+}
+
 export function useSessionRunner(token: string) {
   const [status, setStatus] = useState<RunnerStatus>("idle");
   const [action, setAction] = useState<ClientAction | null>(null);
   const [caption, setCaption] = useState<string>("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<RunnerErrorKind | null>(null);
 
   const vad = useRef<MicVADLike | null>(null);
   const sessionId = useRef<string | null>(null);
@@ -111,7 +131,7 @@ export function useSessionRunner(token: string) {
         body,
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error ?? `request failed (${res.status})`);
+      if (!res.ok) throw new HttpError(data.error ?? `request failed (${res.status})`, res.status);
       return data;
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -128,7 +148,7 @@ export function useSessionRunner(token: string) {
         const data = await post(`/api/p/session/${sessionId.current}/event`, JSON.stringify({ type }));
         await runAction(data.action);
       } catch (e) {
-        setError((e as Error).message);
+        setError(classify(e));
         setStatus("error");
       }
     },
@@ -231,7 +251,7 @@ export function useSessionRunner(token: string) {
         await runAction(data.action);
       } catch (e) {
         busy.current = false;
-        setError((e as Error).message);
+        setError(classify(e));
         setStatus("error");
       }
     },
@@ -291,8 +311,8 @@ export function useSessionRunner(token: string) {
       );
       await runAction(data.action);
     } catch (e) {
-      const msg = (e as Error).message;
-      setError(/permission|denied|notallowed/i.test(msg) ? "mic" : msg);
+      console.error("session start failed", e);
+      setError(classify(e));
       setStatus("error");
     }
   }, [post, runAction]);

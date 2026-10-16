@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSessionRunner, type RunnerStatus } from "@/hooks/useSessionRunner";
 import { P, pick, type UiMode } from "@/lib/i18n/dict";
 import { toHinglish } from "@/lib/i18n/hinglish";
@@ -15,6 +15,14 @@ const STATUS_KEY: Partial<Record<RunnerStatus, keyof typeof P>> = {
   asking: "asking",
   paused: "paused",
 };
+
+const ERROR_TEXT = {
+  mic: "micError",
+  link: "linkError",
+  paused: "pausedError",
+  nowords: "noWordsError",
+  network: "genericError",
+} as const;
 
 /** The one bold element: a turmeric circle that breathes while it listens. */
 function Orb({ status }: { status: RunnerStatus }) {
@@ -54,6 +62,9 @@ function TopBar({ mode, onHelp, inSession }: { mode: UiMode; onHelp?: () => void
 export default function PatientSession({ token, mode }: { token: string; mode: UiMode }) {
   const r = useSessionRunner(token);
   const [captions, setCaptions] = useState(true);
+  // The start button only works once React has hydrated; until then show it as not yet ready.
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
   const t = (k: keyof typeof P) => pick(P[k], mode);
   const caption = mode === "hinglish" ? toHinglish(r.caption) : r.caption;
 
@@ -95,12 +106,14 @@ export default function PatientSession({ token, mode }: { token: string; mode: U
           </div>
           {r.status === "error" && (
             <p role="alert" className="max-w-md rounded-2xl bg-khadi px-5 py-4 text-left text-lg text-ink">
-              {r.error === "mic" ? t("micError") : t("genericError")}
+              {t(ERROR_TEXT[r.error ?? "network"])}
             </p>
           )}
           <button
             onClick={r.start}
-            className="wide flex h-56 w-56 items-center justify-center rounded-full bg-haldi text-4xl font-bold text-neel-deep ring-[16px] ring-haldi/20 transition-transform active:scale-95 sm:h-64 sm:w-64 sm:text-5xl"
+            disabled={!ready}
+            aria-busy={!ready}
+            className="wide disabled:opacity-60 flex h-56 w-56 items-center justify-center rounded-full bg-haldi text-4xl font-bold text-neel-deep ring-[16px] ring-haldi/20 transition-transform active:scale-95 sm:h-64 sm:w-64 sm:text-5xl"
           >
             {t("start")}
           </button>

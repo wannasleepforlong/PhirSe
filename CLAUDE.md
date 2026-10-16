@@ -35,7 +35,9 @@ Next.js (App Router) + TypeScript + Tailwind · Supabase (Postgres, Auth, Storag
 - `npm run lint` — lint
 - `npm run build` — production build
 
-Run `npm test` and `npm run build` before each commit that touches code.
+- `npm run verify` — typecheck, lint, tests and a production build into `.next-verify/`
+
+Run `npm run verify` before each commit that touches code. Never run `npm run build` while the dev server is running: it overwrites `.next/` and breaks every dev request with `ENOENT … _buildManifest.js.tmp`.
 
 ## Clinical and privacy guardrails
 

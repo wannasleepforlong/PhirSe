@@ -2,6 +2,13 @@ import LoginForm from "./LoginForm";
 
 export const metadata = { title: "SLP sign in · PhirSe" };
 
+const ERRORS: Record<string, string> = {
+  demo: "Demo sign-in is turned off on this server.",
+  expired: "That sign-in link was already used or has expired. Request a new link below.",
+  browser: "Open the sign-in link in the same browser where you requested it, or request a new link here.",
+  link: "That sign-in link did not work. Request a new link below.",
+};
+
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const { error } = await searchParams;
   const demoEnabled = process.env.DEMO_LOGIN_ENABLED === "true";
@@ -14,7 +21,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       </div>
       {error && (
         <p className="rounded-lg bg-alert/10 px-3 py-2 text-alert">
-          {error === "demo" ? "Demo sign-in is not available." : "That sign-in link did not work. Request a new one."}
+          {ERRORS[error] ?? ERRORS.link}
         </p>
       )}
       <LoginForm />

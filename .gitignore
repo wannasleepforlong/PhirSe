@@ -64,3 +64,9 @@ Thumbs.db
 
 # generated VAD assets (scripts/copy-vad-assets.mjs)
 public/vad/
+
+# verify builds (npm run verify)
+.next-verify/
+
+# local caches (e2e fake-patient audio)
+.cache/
