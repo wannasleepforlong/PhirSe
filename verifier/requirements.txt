@@ -1,0 +1,16 @@
+# Core scoring (pure, tested): numpy only.
+numpy>=1.26
+requests>=2.31
+
+# Acoustic model backend (IndicConformer, CPU).
+torch>=2.2
+torchaudio>=2.2
+transformers>=4.40
+onnxruntime>=1.20
+onnx>=1.16
+
+# Optional speaker check (SID_ENABLED=true).
+# speechbrain>=1.0
+
+# Tests
+pytest>=8
