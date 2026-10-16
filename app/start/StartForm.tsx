@@ -52,9 +52,6 @@ export default function StartForm({ mode }: { mode: UiMode }) {
           <Link href={`/p/${token}`} className="rounded-full bg-neel px-6 py-3 text-lg font-medium text-khadi">
             {t("startPractice")}
           </Link>
-          <Link href={`/p/${token}/dashboard`} className="rounded-full px-6 py-3 text-lg font-medium text-neel underline-offset-4 hover:underline">
-            {t("openDashboard")}
-          </Link>
         </div>
       </section>
     );

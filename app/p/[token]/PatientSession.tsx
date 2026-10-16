@@ -60,6 +60,29 @@ function TopBar({ mode, onHelp, inSession }: { mode: UiMode; onHelp?: () => void
   );
 }
 
+/** The same tabs as the dashboard, so one link covers practice, progress and words. Hidden during a session. */
+function ProfileTabs({ token, mode }: { token: string; mode: UiMode }) {
+  const tabs: [keyof typeof P, string][] = [
+    ["tabPractice", `/p/${token}`],
+    ["tabProgress", `/p/${token}/dashboard`],
+    ["tabWords", `/p/${token}/dashboard/words`],
+  ];
+  return (
+    <nav className="flex w-full max-w-2xl gap-6 border-b border-khadi/15" aria-label="Practice profile">
+      {tabs.map(([key, href], i) => (
+        <Link
+          key={key}
+          href={href}
+          aria-current={i === 0 ? "page" : undefined}
+          className={`-mb-px border-b-2 pb-2 text-lg ${i === 0 ? "border-haldi font-semibold text-khadi" : "border-transparent text-khadi/65 hover:text-khadi"}`}
+        >
+          {pick(P[key], mode)}
+        </Link>
+      ))}
+    </nav>
+  );
+}
+
 export default function PatientSession({
   token,
   mode,
@@ -100,13 +123,11 @@ export default function PatientSession({
     return (
       <main className="flex min-h-dvh flex-col items-center gap-10 bg-neel px-4 py-6 text-khadi">
         <TopBar mode={mode} inSession={false} />
+        <ProfileTabs token={token} mode={mode} />
         <div className="flex flex-1 flex-col items-center justify-center gap-6 text-center">
           <span className="h-28 w-28 rounded-full bg-mehendi ring-[18px] ring-mehendi/25" aria-hidden />
           <h1 className="font-display text-5xl leading-tight">{t("doneTitle")}</h1>
           <p className="text-2xl text-khadi/80">{t("doneBody")}</p>
-          <Link href={`/p/${token}/dashboard`} className="mt-4 text-lg text-khadi/75 underline underline-offset-4">
-            {t("dashboard")}
-          </Link>
         </div>
       </main>
     );
@@ -116,6 +137,7 @@ export default function PatientSession({
     return (
       <main className="flex min-h-dvh flex-col items-center gap-6 bg-neel px-4 py-6 text-khadi">
         <TopBar mode={mode} inSession={false} />
+        <ProfileTabs token={token} mode={mode} />
         <div className="flex w-full max-w-2xl flex-1 flex-col items-center justify-center gap-8 text-center">
           <div className="flex flex-col gap-3">
             <h1 className="font-display text-5xl leading-[1.15] sm:text-6xl">{t("readyTitle")}</h1>
@@ -138,9 +160,6 @@ export default function PatientSession({
         <footer className="flex max-w-xl flex-col gap-1 text-center text-base leading-relaxed text-khadi/65">
           <p>{t("roomTip")}</p>
           <p>{t("notEmergency")}</p>
-          <Link href={`/p/${token}/dashboard`} className="mt-2 text-khadi/80 underline underline-offset-4">
-            {t("dashboard")}
-          </Link>
         </footer>
       </main>
     );

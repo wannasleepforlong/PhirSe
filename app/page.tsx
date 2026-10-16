@@ -26,11 +26,6 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ d
         <span className="text-lg font-semibold text-neel">PhirSe</span>
         <div className="ml-auto flex items-center gap-4">
           <UiModeToggle mode={mode} nativeLabel="English" />
-          {token && (
-            <Link href={`/p/${token}/dashboard`} className="text-sm font-medium text-neel underline-offset-4 hover:underline">
-              {t("myDashboard")}
-            </Link>
-          )}
         </div>
       </header>
 

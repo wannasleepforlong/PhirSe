@@ -3,9 +3,9 @@ import type { ReactNode } from "react";
 import UiModeToggle from "@/components/UiModeToggle";
 import { F, pick, type UiMode } from "@/lib/i18n/dict";
 
-type Tab = "overview" | "words";
+type Tab = "practice" | "overview" | "words";
 
-/** Frame for every dashboard page: name as the headline, two tabs, and the way back into practice. */
+/** Frame for every dashboard page: name as the headline and the tabs of the one private link (practice, progress, words). */
 export default function DashShell({
   token,
   name,
@@ -24,6 +24,8 @@ export default function DashShell({
   const t = (k: keyof typeof F) => pick(F[k], mode);
   const base = `/p/${token}/dashboard`;
   const tabs: [Tab, string, string][] = [
+    // The demo profile is read-only, so it has no practice tab.
+    ...(readOnly ? [] : [["practice", t("practiceLink"), `/p/${token}`] as [Tab, string, string]]),
     ["overview", t("overview"), base],
     ["words", t("words"), `${base}/words`],
   ];
@@ -37,17 +39,13 @@ export default function DashShell({
           </div>
           <div className="ml-auto flex items-center gap-3 pb-4">
             <UiModeToggle mode={mode} nativeLabel="English" />
-            {readOnly ? (
+            {readOnly && (
               <Link href="/start" className="rounded-full bg-neel px-5 py-2.5 font-medium text-khadi">
                 {t("startOwn")}
               </Link>
-            ) : (
-              <Link href={`/p/${token}`} className="rounded-full bg-neel px-5 py-2.5 font-medium text-khadi">
-                {t("practiceLink")}
-              </Link>
             )}
           </div>
-          <nav className="flex w-full gap-6" aria-label="Dashboard">
+          <nav className="flex w-full gap-6" aria-label="Practice profile">
             {tabs.map(([key, label, href]) => (
               <Link
                 key={key}
