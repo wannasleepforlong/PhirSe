@@ -60,4 +60,7 @@ Thumbs.db
 *.tsbuildinfo
 
 # local assistant settings
-.claude/settings.local.json
+.claude/
+
+# generated VAD assets (scripts/copy-vad-assets.mjs)
+public/vad/
