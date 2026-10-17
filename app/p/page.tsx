@@ -8,7 +8,7 @@ export const metadata = { title: "PhirSe" };
 export default async function PatientIndex() {
   const mode = await uiMode();
   return (
-    <main className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-neel px-6 text-center text-khadi">
+    <main className="flex min-h-dvh flex-col items-center justify-center gap-4 bandhani px-6 text-center text-khadi">
       <h1 className="font-display text-5xl">{pick(P.brand, "native")}</h1>
       <p className="max-w-md text-2xl leading-snug">
         {mode === "hinglish"

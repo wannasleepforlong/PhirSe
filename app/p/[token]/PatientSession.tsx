@@ -6,6 +6,7 @@ import { useSessionRunner, type RunnerStatus } from "@/hooks/useSessionRunner";
 import { P, pick, type UiMode } from "@/lib/i18n/dict";
 import { toHinglish } from "@/lib/i18n/hinglish";
 import UiModeToggle from "@/components/UiModeToggle";
+import Brand from "@/components/Brand";
 
 const STATUS_KEY: Partial<Record<RunnerStatus, keyof typeof P>> = {
   preparing: "preparing",
@@ -38,7 +39,7 @@ function Orb({ status }: { status: RunnerStatus }) {
       <span
         className={`relative h-44 w-44 rounded-full bg-haldi transition-[opacity,transform] duration-700 sm:h-52 sm:w-52 ${
           listening ? "orb-breathe" : ""
-        } ${hearing ? "scale-110" : ""} ${dim ? "opacity-45" : ""} ${status === "speaking" ? "ring-[14px] ring-haldi/25" : ""}`}
+        } ${hearing ? "scale-110" : ""} ${dim ? "opacity-45" : ""} ${status === "speaking" ? "ring-[14px] ring-khadi/15" : ""}`}
       />
     </div>
   );
@@ -47,7 +48,7 @@ function Orb({ status }: { status: RunnerStatus }) {
 function TopBar({ mode, onHelp, inSession }: { mode: UiMode; onHelp?: () => void; inSession: boolean }) {
   return (
     <div className="flex w-full max-w-2xl items-center gap-3">
-      <span className="font-display text-2xl text-khadi">{pick(P.brand, "native")}</span>
+      <Brand tone="dark" href={null} />
       <div className="ml-auto">
         <UiModeToggle mode={mode} nativeLabel="हिंदी" tone="dark" />
       </div>
@@ -68,13 +69,13 @@ function ProfileTabs({ token, mode }: { token: string; mode: UiMode }) {
     ["tabWords", `/p/${token}/dashboard/words`],
   ];
   return (
-    <nav className="flex w-full max-w-2xl gap-6 border-b border-khadi/15" aria-label="Practice profile">
+    <nav className="flex w-full max-w-2xl gap-1 rounded-full bg-khadi/10 p-1" aria-label="Practice profile">
       {tabs.map(([key, href], i) => (
         <Link
           key={key}
           href={href}
           aria-current={i === 0 ? "page" : undefined}
-          className={`-mb-px border-b-2 pb-2 text-lg ${i === 0 ? "border-haldi font-semibold text-khadi" : "border-transparent text-khadi/65 hover:text-khadi"}`}
+          className={`flex-1 rounded-full px-4 py-2 text-center text-lg transition-colors ${i === 0 ? "bg-khadi font-semibold text-neel" : "text-khadi/75 hover:bg-khadi/10 hover:text-khadi"}`}
         >
           {pick(P[key], mode)}
         </Link>
@@ -121,7 +122,7 @@ export default function PatientSession({
 
   if (r.status === "done") {
     return (
-      <main className="flex min-h-dvh flex-col items-center gap-10 bg-neel px-4 py-6 text-khadi">
+      <main className="flex min-h-dvh flex-col items-center gap-10 bandhani-faint px-4 py-6 text-khadi">
         <TopBar mode={mode} inSession={false} />
         <ProfileTabs token={token} mode={mode} />
         <div className="flex flex-1 flex-col items-center justify-center gap-6 text-center">
@@ -135,7 +136,7 @@ export default function PatientSession({
 
   if (r.status === "idle" || r.status === "error") {
     return (
-      <main className="flex min-h-dvh flex-col items-center gap-6 bg-neel px-4 py-6 text-khadi">
+      <main className="flex min-h-dvh flex-col items-center gap-6 bandhani-faint px-4 py-6 text-khadi">
         <TopBar mode={mode} inSession={false} />
         <ProfileTabs token={token} mode={mode} />
         <div className="flex w-full max-w-2xl flex-1 flex-col items-center justify-center gap-8 text-center">
@@ -144,7 +145,7 @@ export default function PatientSession({
             <p className="mx-auto max-w-md text-xl leading-relaxed text-khadi/75">{t("aiNote")}</p>
           </div>
           {r.status === "error" && (
-            <p role="alert" className="max-w-md rounded-2xl bg-khadi px-5 py-4 text-left text-lg text-ink">
+            <p role="alert" className="max-w-md rounded-2xl border-l-8 border-haldi bg-khadi px-5 py-4 text-left text-lg text-ink">
               {t(ERROR_TEXT[r.error ?? "network"])}
             </p>
           )}
@@ -152,7 +153,7 @@ export default function PatientSession({
             onClick={r.start}
             disabled={!ready}
             aria-busy={!ready}
-            className="wide disabled:opacity-60 flex h-56 w-56 items-center justify-center rounded-full bg-haldi text-4xl font-bold text-neel-deep ring-[16px] ring-haldi/20 transition-transform active:scale-95 sm:h-64 sm:w-64 sm:text-5xl"
+            className="wide disabled:opacity-60 flex h-56 w-56 items-center justify-center rounded-full bg-haldi text-4xl font-bold text-neel-deep ring-[16px] ring-khadi/10 shadow-[0_0_80px_10px_rgb(233_168_27/0.25)] transition-transform hover:scale-[1.02] active:scale-95 sm:h-64 sm:w-64 sm:text-5xl"
           >
             {t("start")}
           </button>
@@ -171,7 +172,7 @@ export default function PatientSession({
   const bigBtn = "wide flex-1 rounded-2xl py-6 text-3xl font-semibold transition-colors disabled:opacity-35";
 
   return (
-    <main className="flex min-h-dvh flex-col items-center gap-4 bg-neel px-4 pb-6 pt-0 text-khadi">
+    <main className="flex min-h-dvh flex-col items-center gap-4 bandhani-faint px-4 pb-6 pt-0 text-khadi">
       <div className="h-1.5 w-full max-w-2xl overflow-hidden rounded-b-full bg-khadi/10" aria-hidden>
         <div className="h-full bg-haldi transition-[width] duration-700" style={{ width: `${progress * 100}%` }} />
       </div>

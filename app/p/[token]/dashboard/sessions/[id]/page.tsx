@@ -41,7 +41,7 @@ export default async function SessionPage({ params }: { params: Promise<{ token:
   return (
     <DashShell token={token} name={`${profile.display_name} ${profile.honorific}`.trim()} mode={mode} tab={null} readOnly={readOnly}>
       <div className="flex flex-col gap-2">
-        <Link href={`/p/${token}/dashboard`} className="text-neel underline-offset-4 hover:underline">← {t("overview")}</Link>
+        <Link href={`/p/${token}/dashboard`} className="self-start rounded-full px-3 py-1 text-neel ring-1 ring-neel/20 hover:bg-neel-soft">← {t("overview")}</Link>
         <h2 className="text-3xl font-semibold text-neel">
           {t("sessionTitle")}, {fmtDate(review.session.started_at)}
         </h2>
@@ -52,13 +52,13 @@ export default async function SessionPage({ params }: { params: Promise<{ token:
         <p className="max-w-[70ch] text-ink/65">{t("checkHint")}</p>
       </div>
 
-      <ol className="flex flex-col divide-y divide-line border-y border-line">
+      <ol className="flex flex-col gap-4">
         {answers.map((a) => {
           const score = SCORE[a.live_score];
           return (
-            <li key={a.id} className="grid gap-4 py-5 md:grid-cols-[10rem_1fr_auto] md:items-start">
+            <li key={a.id} className="panel grid gap-4 p-5 sm:p-6 md:grid-cols-[10rem_1fr_auto] md:items-start">
               <div className="flex flex-col gap-1">
-                <span className="text-3xl">{a.word!.target_deva}</span>
+                <span className="font-display text-4xl text-neel">{a.word!.target_deva}</span>
                 <span className="text-sm text-ink/60">
                   {a.phase === "probe" ? "check" : CUE_LABEL[a.cue_level ?? "prompt"]?.[mode]}
                   {a.latency_ms !== null ? `, ${(a.latency_ms / 1000).toFixed(1)} s` : ""}

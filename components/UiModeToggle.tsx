@@ -21,7 +21,7 @@ export default function UiModeToggle({
     document.cookie = `${UI_COOKIE}=${m}; path=/; max-age=31536000; samesite=lax`;
     start(() => router.refresh());
   };
-  const base = tone === "dark" ? "border-khadi/30 text-khadi" : "border-neel/25 text-neel";
+  const base = tone === "dark" ? "border-khadi/30 bg-neel-deep/40 text-khadi" : "border-neel/20 bg-paper text-neel";
   const on = tone === "dark" ? "bg-khadi text-neel" : "bg-neel text-khadi";
   return (
     <div role="radiogroup" aria-label="Language" className={`inline-flex rounded-full border p-0.5 text-sm ${base} ${pending ? "opacity-60" : ""}`}>

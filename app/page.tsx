@@ -3,6 +3,7 @@ import { L, pick } from "@/lib/i18n/dict";
 import { uiMode } from "@/lib/i18n/server";
 import { toHinglish } from "@/lib/i18n/hinglish";
 import UiModeToggle from "@/components/UiModeToggle";
+import Brand from "@/components/Brand";
 import { rememberedToken } from "@/lib/profile/cookie";
 
 // One real item from the demo list, shown as the cue ladder a patient hears.
@@ -23,7 +24,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ d
   return (
     <div className="min-h-dvh">
       <header className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-5 sm:px-8">
-        <span className="text-lg font-semibold text-neel">PhirSe</span>
+        <Brand />
         <div className="ml-auto flex items-center gap-4">
           <UiModeToggle mode={mode} nativeLabel="English" />
         </div>
@@ -31,29 +32,29 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ d
 
       <main className="mx-auto grid max-w-6xl gap-12 px-4 pb-16 pt-6 sm:px-8 lg:grid-cols-[1fr_1.05fr] lg:items-center lg:gap-16 lg:pt-12">
         <section className="flex flex-col gap-6">
-          <h1 className="font-display text-[5.5rem] leading-[0.95] text-neel sm:text-[8rem]">{t("headline")}</h1>
+          <h1 className="font-display text-[5.5rem] leading-[0.95] text-neel sm:text-[8.5rem]">{t("headline")}</h1>
           <p className="max-w-[34ch] text-2xl leading-snug text-ink">{t("sub")}</p>
           <div className="flex flex-wrap gap-3 pt-2">
             {token ? (
               <>
-                <Link href={`/p/${token}`} className="rounded-full bg-neel px-6 py-3 text-lg font-medium text-khadi">
+                <Link href={`/p/${token}`} className="rounded-full bg-neel px-7 py-3.5 text-lg font-medium text-khadi shadow-[var(--lift)] transition-colors hover:bg-neel-deep">
                   {t("continue")}
                 </Link>
-                <Link href="/start" className="rounded-full px-6 py-3 text-lg font-medium text-neel underline-offset-4 hover:underline">
+                <Link href="/start" className="rounded-full px-7 py-3.5 text-lg font-medium text-neel ring-1 ring-neel/25 hover:bg-neel-soft">
                   {t("begin")}
                 </Link>
               </>
             ) : (
-              <Link href="/start" className="rounded-full bg-neel px-6 py-3 text-lg font-medium text-khadi">
+              <Link href="/start" className="rounded-full bg-neel px-7 py-3.5 text-lg font-medium text-khadi shadow-[var(--lift)] transition-colors hover:bg-neel-deep">
                 {t("begin")}
               </Link>
             )}
           </div>
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-lg">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-line pt-5 text-lg">
             <form action="/api/demo/try" method="post">
-              <button className="font-medium text-neel underline underline-offset-4">{t("tryIt")}</button>
+              <button className="font-medium text-neel underline decoration-haldi decoration-2 underline-offset-[6px] hover:decoration-neel">{t("tryIt")}</button>
             </form>
-            <Link href="/demo" className="font-medium text-neel underline underline-offset-4">
+            <Link href="/demo" className="font-medium text-neel underline decoration-haldi decoration-2 underline-offset-[6px] hover:decoration-neel">
               {t("seeDashboard")}
             </Link>
           </div>
@@ -64,20 +65,21 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ d
           )}
         </section>
 
-        <section aria-labelledby="ladder" className="rounded-[2rem] bg-neel p-6 text-khadi sm:p-9">
-          <h2 id="ladder" className="text-lg text-khadi/70">{t("ladderTitle")}</h2>
-          <ol className="mt-6 flex flex-col">
+        <section aria-labelledby="ladder" className="bandhani relative rounded-[2rem] p-6 text-khadi shadow-[0_30px_60px_-30px_rgb(21_29_72/0.6)] sm:p-9">
+          <h2 id="ladder" className="text-lg text-khadi/75">{t("ladderTitle")}</h2>
+          <ol className="relative mt-6 flex flex-col">
+            <span className="absolute bottom-6 left-4 top-4 w-px bg-khadi/25" aria-hidden />
             {LADDER.map((s, i) => (
-              <li key={i} className="grid grid-cols-[2rem_1fr] gap-x-4 pb-6">
-                <span className="wide flex h-8 w-8 items-center justify-center rounded-full border border-khadi/40 text-sm">{i + 1}</span>
+              <li key={i} className="relative grid grid-cols-[2rem_1fr] gap-x-4 pb-6">
+                <span className="wide flex h-8 w-8 items-center justify-center rounded-full bg-neel-deep text-sm ring-1 ring-khadi/40">{i + 1}</span>
                 <div className="flex flex-col gap-1.5">
                   <span className="text-sm text-haldi">{s.step[mode]}</span>
                   <p className="text-xl leading-snug">“{say(s.voice)}”</p>
-                  <p className="text-lg text-khadi/60">{mode === "hinglish" ? s.replyH : s.reply}</p>
+                  <p className="self-start rounded-2xl rounded-tl-sm bg-khadi/10 px-3 py-1 text-lg text-khadi/75">{mode === "hinglish" ? s.replyH : s.reply}</p>
                 </div>
               </li>
             ))}
-            <li className="grid grid-cols-[2rem_1fr] items-center gap-x-4">
+            <li className="relative grid grid-cols-[2rem_1fr] items-center gap-x-4">
               <span className="h-8 w-8 rounded-full bg-mehendi ring-4 ring-mehendi/30" aria-hidden />
               <p className="font-display text-7xl leading-none">{mode === "hinglish" ? "Kap" : "कप"}</p>
             </li>
@@ -85,15 +87,15 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ d
         </section>
       </main>
 
-      <section className="border-t border-line">
-        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-8 md:grid-cols-3">
+      <section className="border-y border-line bg-paper">
+        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-8 md:grid-cols-3 md:gap-14">
           {([
             ["patienceTitle", "patienceBody", "bg-haldi"],
             ["honestTitle", "honestBody", "bg-neel"],
             ["safeTitle", "safeBody", "bg-sindoor"],
           ] as const).map(([title, body, mark]) => (
             <div key={title} className="flex flex-col gap-3">
-              <span className={`h-1 w-12 rounded-full ${mark}`} aria-hidden />
+              <span className={`h-1.5 w-12 rounded-full ${mark}`} aria-hidden />
               <h3 className="text-2xl font-semibold text-neel">{t(title)}</h3>
               <p className="max-w-[42ch] text-lg leading-relaxed text-ink/80">{t(body)}</p>
             </div>
@@ -101,11 +103,16 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ d
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 pb-10 sm:px-8">
-        <p className="max-w-[75ch] text-lg leading-relaxed text-ink/75">{t("evidence")}</p>
+      <section className="mx-auto max-w-6xl px-4 py-14 sm:px-8">
+        <p className="max-w-[70ch] border-l-4 border-haldi pl-5 text-lg leading-relaxed text-ink/80">{t("evidence")}</p>
       </section>
 
-      <footer className="mx-auto max-w-6xl px-4 pb-10 text-base text-ink/70 sm:px-8">{t("footer")}</footer>
+      <footer className="bandhani-faint text-khadi/75">
+        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-10 sm:flex-row sm:items-center sm:px-8">
+          <Brand tone="dark" />
+          <p className="max-w-[60ch] text-base sm:ml-auto sm:text-right">{t("footer")}</p>
+        </div>
+      </footer>
     </div>
   );
 }

@@ -9,7 +9,7 @@ import { previewLine, removeWord, saveWord, type WordInput } from "../actions";
 type EditableSet = WordInput["set"];
 type CueField = "prompt_text" | "semantic_cue_text" | "phonemic_cue_text" | "model_text";
 
-const field = "w-full rounded-xl border border-line bg-white px-3 py-2.5 text-lg text-ink placeholder:text-ink/35";
+const field = "w-full rounded-xl border border-line bg-khadi/60 px-3 py-2.5 text-lg text-ink placeholder:text-ink/35 focus:border-neel focus:bg-paper focus:outline-none";
 
 function WordForm({
   token,
@@ -63,7 +63,7 @@ function WordForm({
             disabled={!text || pending}
             onClick={() => play(text)}
             aria-label={`${t("play")}: ${text}`}
-            className="shrink-0 rounded-xl border border-line px-3 text-neel disabled:opacity-40"
+            className="shrink-0 rounded-xl bg-neel-soft px-3.5 text-neel hover:bg-neel hover:text-khadi disabled:opacity-40"
           >
             ▶
           </button>
@@ -90,7 +90,7 @@ function WordForm({
     });
 
   return (
-    <div className="grid gap-4 rounded-2xl bg-white p-5 ring-1 ring-line md:grid-cols-2">
+    <div className="grid gap-4 rounded-2xl border-l-4 border-haldi bg-paper p-5 shadow-[var(--lift)] md:grid-cols-2">
       <label className="flex flex-col gap-1.5 text-sm text-ink/70">
         {t("wordLabel")}
         <input value={f.target_deva} onChange={(e) => setF({ ...f, target_deva: e.target.value })} placeholder="कप" className={`${field} text-2xl`} />
@@ -108,7 +108,7 @@ function WordForm({
               type="button"
               aria-pressed={f.set === v}
               onClick={() => setF({ ...f, set: v })}
-              className={`rounded-full px-3.5 py-2 text-base ${f.set === v ? "bg-neel text-khadi" : "border border-line text-ink"}`}
+              className={`rounded-full px-3.5 py-2 text-base ${f.set === v ? "bg-neel text-khadi" : "border border-line bg-paper text-ink hover:border-neel/40"}`}
             >
               {t(label)}
             </button>
@@ -166,7 +166,7 @@ export default function WordEditor({
     <div className="flex flex-col gap-10">
       {!readOnly && (
         <div className="flex flex-col gap-4">
-          <button onClick={() => setAdding((a) => !a)} className="self-start rounded-full bg-haldi px-5 py-2.5 font-medium text-neel-deep">
+          <button onClick={() => setAdding((a) => !a)} className="self-start rounded-full bg-haldi px-6 py-3 font-semibold text-neel-deep shadow-[var(--lift)]">
             + {t("addWord")}
           </button>
           {adding && <WordForm token={token} mode={mode} onDone={() => setAdding(false)} />}
@@ -176,13 +176,13 @@ export default function WordEditor({
         const list = words.filter((w) => w.set === set);
         if (list.length === 0) return null;
         return (
-          <section key={set} className="flex flex-col gap-3">
+          <section key={set} className="panel flex flex-col gap-3 p-5 sm:p-7">
             <h2 className="text-xl font-semibold text-neel">
-              {t(label)} <span className="font-normal text-ink/45">{list.length}</span>
+              {t(label)} <span className="ml-1 rounded-full bg-neel-soft px-2.5 py-0.5 align-middle text-sm font-normal text-neel">{list.length}</span>
             </h2>
-            <ul className="flex flex-col divide-y divide-line border-y border-line">
+            <ul className="-mx-2 flex flex-col">
               {list.map((w) => (
-                <li key={w.id} className="py-2">
+                <li key={w.id} className="rounded-xl px-2 py-1.5 hover:bg-khadi">
                   <button
                     onClick={() => setOpen(open === w.id ? null : w.id)}
                     aria-expanded={open === w.id}

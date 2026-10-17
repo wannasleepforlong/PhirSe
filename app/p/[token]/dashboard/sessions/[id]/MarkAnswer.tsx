@@ -30,14 +30,14 @@ export default function MarkAnswer({
         <button
           aria-pressed={current === "correct"}
           onClick={() => choose("correct")}
-          className={`rounded-full px-3.5 py-2 ${current === "correct" ? "bg-mehendi text-white" : "border border-line"}`}
+          className={`rounded-full px-3.5 py-2 ${current === "correct" ? "bg-mehendi text-white" : "border border-line bg-paper hover:border-neel/40"}`}
         >
           {pick(F.right, mode)}
         </button>
         <button
           aria-pressed={current === "incorrect"}
           onClick={() => choose("incorrect")}
-          className={`rounded-full px-3.5 py-2 ${current === "incorrect" ? "bg-neel text-khadi" : "border border-line"}`}
+          className={`rounded-full px-3.5 py-2 ${current === "incorrect" ? "bg-neel text-khadi" : "border border-line bg-paper hover:border-neel/40"}`}
         >
           {pick(F.notRight, mode)}
         </button>

@@ -13,7 +13,7 @@ export function PracticeSwitch({ token, status, mode, label }: { token: string; 
       disabled={pending}
       onClick={() => start(() => setPractice(token, paused ? "active" : "paused"))}
       className={`self-start rounded-full px-5 py-2.5 font-medium disabled:opacity-60 ${
-        paused ? "bg-neel text-khadi" : "border border-line text-ink/70 hover:text-neel"
+        paused ? "bg-neel text-khadi" : "border border-line bg-paper text-ink/70 hover:border-neel/40 hover:text-neel"
       }`}
     >
       {label ?? pick(paused ? F.resume : F.pause, mode)}
@@ -28,13 +28,13 @@ export function DeleteZone({ token, mode }: { token: string; mode: UiMode }) {
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
   return (
-    <details className="border-t border-line pt-6 text-ink/70">
+    <details className="rounded-2xl border border-sindoor/20 px-5 py-4 text-ink/70 open:bg-paper">
       <summary className="cursor-pointer text-base">{t("dangerZone")}</summary>
       <div className="mt-4 flex max-w-xl flex-col gap-3">
         <p>{t("dangerBody")}</p>
         <label className="flex flex-col gap-1 text-sm">
           {t("deleteConfirm")}
-          <input value={text} onChange={(e) => setText(e.target.value)} className="max-w-xs rounded-xl border border-line bg-white px-3 py-2 text-base" />
+          <input value={text} onChange={(e) => setText(e.target.value)} className="max-w-xs rounded-xl border border-line bg-paper px-3 py-2 text-base" />
         </label>
         {error && <p className="text-sindoor">{error}</p>}
         <button

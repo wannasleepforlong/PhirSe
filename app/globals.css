@@ -18,6 +18,9 @@
   --ink: #171b33;
   --ink-muted: #565c78;
   --line: #d5d9e6;
+  --paper: #ffffff;
+  /* Indigo-tinted lift for raised surfaces, never a flat grey. */
+  --lift: 0 1px 2px rgb(30 42 99 / 0.06), 0 8px 24px -12px rgb(30 42 99 / 0.18);
 }
 
 @theme inline {
@@ -32,6 +35,7 @@
   --color-sindoor: var(--sindoor);
   --color-ink: var(--ink);
   --color-line: var(--line);
+  --color-paper: var(--paper);
 
   /* Older component names mapped onto the palette (spike page, shared bits). */
   --color-background: var(--khadi);
@@ -64,6 +68,32 @@ body {
 }
 .narrow {
   font-stretch: 88%;
+}
+
+/* Raised white surface: the one card treatment, used for grouped content only. */
+.panel {
+  background: var(--paper);
+  border-radius: 1.25rem;
+  box-shadow: var(--lift);
+  outline: 1px solid rgb(30 42 99 / 0.07);
+}
+
+/*
+  Bandhani: tie-dye dots, the signature texture. Small clustered dots on indigo cloth.
+  Used only on neel surfaces (hero panel, dashboard header, patient screen).
+*/
+.bandhani {
+  background-color: var(--neel);
+  background-image:
+    radial-gradient(circle at 50% 50%, rgb(246 247 244 / 0.13) 1.6px, transparent 2.2px),
+    radial-gradient(circle at 50% 50%, rgb(233 168 27 / 0.16) 1.4px, transparent 2px);
+  background-size: 22px 22px, 22px 22px;
+  background-position: 0 0, 11px 11px;
+}
+.bandhani-faint {
+  background-color: var(--neel);
+  background-image: radial-gradient(circle at 50% 50%, rgb(246 247 244 / 0.06) 1.5px, transparent 2.1px);
+  background-size: 26px 26px;
 }
 
 :focus-visible {
